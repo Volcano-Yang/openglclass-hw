@@ -42,10 +42,6 @@ typedef std::vector<std::pair<int, int> > Edges;
 typedef std::vector<unsigned int> FaceList;
 
 
-
-
-
-
 class My_Mesh
 {
 public:
@@ -56,6 +52,7 @@ public:
 	std::string get_texture_file();
 
 	const VertexList& get_vertices();
+	void generate_floor(int num_division);
 	const NormalList& get_normals();
 	const FaceList&   get_faces();
 	const STLVectorf&   get_colors();
@@ -67,20 +64,27 @@ public:
 	const point3f& get_center();
 	void get_boundingbox(point3f& min_p, point3f& max_p) const;
 
+	// 生成碟子函数
 	void generate_disk(int num_division = 100);
+	// 生成圆锥函数
 	void generate_cone(int num_division = 100, float height = 2);
-
-
+	// 生成圆柱函数
 	void generate_cylinder(int num_division = 100, float height = 2);
 
+	// 生成墙壁函数
+	void generate_wallbk(int num_division = 100);
+	void generate_wallft(int num_division = 100);
+	void generate_wallrt(int num_division = 100);
+	void generate_walllf(int num_division = 100);
+	// 生成地面函数
+	void generate_floor(int num_division = 100);
 	static void normal_to_color(float, float, float, float&, float&, float&);
 	void set_translate(float, float, float);
 	void get_translate(float& x, float& y, float& z);
+
 private:
 	void clear_data();
 private:
-
-
 	VertexList m_vertices_;
 	NormalList m_normals_;
 	FaceList   m_faces_;
@@ -89,24 +93,19 @@ private:
 	point3f m_center_;
 	point3f m_min_box_;
 	point3f m_max_box_;
-	
+
 public:
 	void add_theta_step();
 	void set_theta_step(float x, float y, float z);
 	void set_theta(float x, float y, float z);
-
 	void get_theta(float& x, float& y, float& z);
 
 private:
-	
 	std::string texture_file_name;
-
 	enum { Xaxis = 0, Yaxis = 1, Zaxis = 2, NumAxes = 3 };
 	int      Axis = Xaxis;
 	GLfloat  Theta[3];
 	GLfloat  Theta_step[3];
 	GLfloat vTranslation[3];
-
-	
 };
 

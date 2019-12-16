@@ -6,6 +6,7 @@ public:
 	Mesh_Painter();
 	~Mesh_Painter();
 
+	void setCameraMatrix(mat4 model, mat4 view, mat4 pro);
 	void draw_meshes();
 	void update_vertex_buffer();
 	void update_texture();
@@ -15,14 +16,7 @@ public:
 	void clear_mehs();
 
 private:
-
 	void load_texture_FreeImage(std::string file_name, GLuint& m_texName);
-
-
-
-
-
-
 
 	std::vector<GLuint> textures_all;
 	std::vector<GLuint> program_all;
@@ -34,7 +28,6 @@ private:
 	std::vector<GLuint> vNormal_all;
 	std::vector<GLuint>  theta_all;
 	std::vector<GLuint>  trans_all;
-	   
 
 	std::vector<My_Mesh*> m_my_meshes_;
 };

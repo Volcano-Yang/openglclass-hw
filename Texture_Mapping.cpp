@@ -55,7 +55,7 @@ vec4 up;
 bool firstMouse = true;
 GLfloat lastX = 1300 / 2.0;
 GLfloat lastY = 800 / 2.0;
-GLfloat yaw = -90.0f;	
+GLfloat yaw = -90.0f;
 GLfloat pitch = 0.0f;
 // ¿ØÖÆÊÓ½ÇµÄ½Ç¶È³õÊ¼Öµ
 float rad = 50.0;
@@ -74,7 +74,7 @@ int movetorso = 0;	// ¿ØÖÆÇÐ»»µÚÒ»ÊÓ½ÇÐÐ×ßÄ£Ê½
 int stepSize = 2;	// ¿ØÖÆ»úÆ÷ÈËÃ¿Ò»²½µÄ²½³¤
 float increase = 1.0;	// »æÖÆ»úÆ÷ÈËÊ±µÄÎ»ÖÃÆ«ÒÆÖµ
 
-// ÓÃÓÚ´«ÈëÆ¬Ôª×ÅÉ«Æ÷£¬ÒÔ¿ØÖÆÒõÓ°²¿·Ö²»Ìí¼ÓÂþ·´Éä¡¢¾µÃæ·´ÉäºÍ»·¾³¹â 
+						// ÓÃÓÚ´«ÈëÆ¬Ôª×ÅÉ«Æ÷£¬ÒÔ¿ØÖÆÒõÓ°²¿·Ö²»Ìí¼ÓÂþ·´Éä¡¢¾µÃæ·´ÉäºÍ»·¾³¹â 
 GLuint sflag;
 
 namespace Camera
@@ -98,7 +98,7 @@ namespace Camera
 		c[2][3] = -(zFar + zNear) / (zFar - zNear);
 		return c;
 	}
-	 
+
 	// Í¸ÊÓÍ¶Ó°£¬½ü´óÔ¶Ð¡
 	mat4 perspective(const GLfloat fovy, const GLfloat aspect,
 		const GLfloat zNear, const GLfloat zFar)
@@ -131,7 +131,7 @@ const int NumVertices = 36; // Ã¿¸ö²¿¼þ6¸öÃæ£¬Ã¿¸öÃæ°üº¬2¸öÈý½ÇÃæÆ¬£¬Ã¿¸öÈý½ÇÃæÆ
 point4 points[NumVertices];	// µã×ø±ê
 color4 colors[NumVertices];	// µãÑÕÉ«
 point4 nomal[NumVertices];	// ·¨ÏòÁ¿
-// µã×ø±ê
+							// µã×ø±ê
 point4 vertices[8] = {
 	point4(-0.5, -0.5, 0.5, 1.0),
 	point4(-0.5, 0.5, 0.5, 1.0),
@@ -262,9 +262,9 @@ quad(int a, int b, int c, int d)
 	vec3 nomalabc = cross(nomalab, nomalbc);//¼ÆËã»æÖÆÎïÌåµÄ¸÷¸öÃæµÄ·¨ÏòÁ¿
 
 	colors[Index] = vertex_colors[a]; points[Index] = vertices[a]; nomal[Index] = nomalabc;
-	
+
 	Index++;
-	
+
 	colors[Index] = vertex_colors[a]; points[Index] = vertices[b]; nomal[Index] = nomalabc; Index++;
 	colors[Index] = vertex_colors[a]; points[Index] = vertices[c]; nomal[Index] = nomalabc; Index++;
 	colors[Index] = vertex_colors[a]; points[Index] = vertices[a]; nomal[Index] = nomalabc; Index++;
@@ -532,7 +532,7 @@ void
 init()
 {
 	colorcube();//Éú³Éµ¥Î»ÁùÃæÌå
-	// ´´½¨¶¥µãÊý×é¶ÔÏó
+				// ´´½¨¶¥µãÊý×é¶ÔÏó
 	glGenVertexArrays(1, &vao[0]);
 	glBindVertexArray(vao[0]);
 	// ´´½¨²¢³õÊ¼»¯¶¥µã»º´æ¶ÔÏó
@@ -559,7 +559,7 @@ init()
 	GLuint vColor = glGetAttribLocation(program, "vColor");
 	glEnableVertexAttribArray(vColor);
 	glVertexAttribPointer(vColor, 4, GL_FLOAT, GL_FALSE, 0,
-	BUFFER_OFFSET(sizeof(points)));
+		BUFFER_OFFSET(sizeof(points)));
 
 	ModelView = glGetUniformLocation(program, "ModelView");
 	Projection = glGetUniformLocation(program, "Projection");
@@ -572,9 +572,9 @@ init()
 	glVertexAttribPointer(vNormal, 4, GL_FLOAT, GL_FALSE, 0,
 		BUFFER_OFFSET(sizeof(points) + sizeof(colors)));
 	//³õÊ¼»¯Ïà»ú²ÎÊý
-	eye=vec4(0.0f, 15.0f, 50.0f,1);
-	at=vec4(0.0f, 0.0f, -1.0f,1);
-	up=vec4(0.0f, 1.0f, 0.0f,0);
+	eye = vec4(0.0f, 15.0f, 50.0f, 1);
+	at = vec4(0.0f, 0.0f, -1.0f, 1);
+	up = vec4(0.0f, 1.0f, 0.0f, 0);
 
 	glEnable(GL_DEPTH_TEST);
 	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
@@ -589,7 +589,7 @@ void show_robot()
 {
 	glUseProgram(program);
 	glBindVertexArray(vao[0]);
-	model_view = Translate(runX * sin(DegreesToRadians) + runZ, 0, runX * cos(DegreesToRadians)) 
+	model_view = Translate(runX * sin(DegreesToRadians) + runZ, 0, runX * cos(DegreesToRadians))
 		* Translate(0.0, increase + UPPER_LEG_HEIGHT + LOWER_LEG_HEIGHT, 0.0)*RotateY(theta[Torso]);//Çû¸É±ä»»¾ØÕópAngle*pAngle*
 	torso();//Çû¸É»æÖÆ
 	mvstack.push(model_view);//±£´æÇû¸É±ä»»¾ØÕó
@@ -598,7 +598,7 @@ void show_robot()
 	model_view = mvstack.pop();//»Ö¸´Çû¸É±ä»»¾ØÕó
 	glBindVertexArray(vao[0]);
 	mvstack.push(model_view); //±£´æÇû¸É±ä»»¾ØÕó
-	//³ËÒÔÉÏ±ÛµÄ±ä»»¾ØÕó(×¢Òâ´Ë´¦×îºó³ËÁËRotateX£¬´ú±í¸Ä±ätheta[LeftUpperArm]»á¸Ä±äÉÏ±ÛµÄÐý×ª½Ç¶È£¬ÒÔXÖáÎªÐý×ªÖá)
+							  //³ËÒÔÉÏ±ÛµÄ±ä»»¾ØÕó(×¢Òâ´Ë´¦×îºó³ËÁËRotateX£¬´ú±í¸Ä±ätheta[LeftUpperArm]»á¸Ä±äÉÏ±ÛµÄÐý×ª½Ç¶È£¬ÒÔXÖáÎªÐý×ªÖá)
 	model_view *= (Translate(0.5*(TORSO_WIDTH + UPPER_ARM_WIDTH), 0.9 * TORSO_HEIGHT, 0.0) *RotateX(theta[LeftUpperArm])*RotateZ(180));
 	left_upper_arm();//×óÉÏ±Û»æÖÆ
 	model_view *= (Translate(0.0, UPPER_ARM_HEIGHT, 0.0) *RotateX(theta[LeftLowerArm]));
@@ -642,7 +642,7 @@ display(void)
 		vec4(0, 0, 0, -lx*shadowface[0] - ly*shadowface[1] - lz*shadowface[2]));
 
 	Camera::modelMatrix = mat4(1.0);
-	Camera::viewMatrix = Camera::lookAt(eye, eye+at, up);//ÉèÖÃÕÕÏà»ú
+	Camera::viewMatrix = Camera::lookAt(eye, eye + at, up);//ÉèÖÃÕÕÏà»ú
 	Camera::projMatrix = Camera::perspective(fov, aspect, zN, zF);//ÉèÖÃÍ¸ÊÓÍ¶Ó°
 	glUniformMatrix4fv(Projection, 1, GL_TRUE, &Camera::projMatrix[0][0]);	//´«½øÍ¸ÊÓÍ¶Ó°¾ØÕó
 	glUniform3fv(lightPosID, 1, &lightPos[0]);	// ½«¹âÔ´ÐÅÏ¢´«Èë¶¥µã×ÅÉ«Æ÷
@@ -695,33 +695,33 @@ float radians(GLfloat x) {
 void mousepassmove(int x, int y) {
 	if (cameramouse) {
 		//ÒÆ¶¯
-			if (firstMouse)
-			{
-				lastX = x;
-				lastY = y;
-				firstMouse = false;
-			}
-			x = x*30;
-			y = y*30;
-			GLfloat xoffset = x - lastX;
-			GLfloat yoffset = lastY - y;
+		if (firstMouse)
+		{
 			lastX = x;
 			lastY = y;
-			GLfloat sensitivity = 0.05;
-			xoffset *= sensitivity;
-			yoffset *= sensitivity;
-			yaw += xoffset;
-			pitch += yoffset;
-			if (pitch > 89.0f)
-				pitch = 89.0f;
-			if (pitch < -89.0f)
-				pitch = -89.0f;
-			vec3 front;
-			front.x = cos(radians(yaw)) * cos(radians(pitch));// 
-			front.y =sin(radians(pitch));
-			front.z = sin(radians(yaw)) * cos(radians(pitch));
-			at = normalize(front);//¸³¸øÏà»ú¹Û²ìµãÒÔ´ïµ½¿ØÖÆÏà»ú¹Û²ì×ª»»µÄÄ¿µÄ
-			glutPostRedisplay();
+			firstMouse = false;
+		}
+		x = x * 30;
+		y = y * 30;
+		GLfloat xoffset = x - lastX;
+		GLfloat yoffset = lastY - y;
+		lastX = x;
+		lastY = y;
+		GLfloat sensitivity = 0.05;
+		xoffset *= sensitivity;
+		yoffset *= sensitivity;
+		yaw += xoffset;
+		pitch += yoffset;
+		if (pitch > 89.0f)
+			pitch = 89.0f;
+		if (pitch < -89.0f)
+			pitch = -89.0f;
+		vec3 front;
+		front.x = cos(radians(yaw)) * cos(radians(pitch));// 
+		front.y = sin(radians(pitch));
+		front.z = sin(radians(yaw)) * cos(radians(pitch));
+		at = normalize(front);//¸³¸øÏà»ú¹Û²ìµãÒÔ´ïµ½¿ØÖÆÏà»ú¹Û²ì×ª»»µÄÄ¿µÄ
+		glutPostRedisplay();
 	}
 }
 
@@ -790,7 +790,7 @@ void robotChangeGesture() {
 
 void keyboard(unsigned char key, int mousex, int mousey)
 {
-    GLfloat cameraSpeed = 1.0f;
+	GLfloat cameraSpeed = 1.0f;
 	vec4 n = normalize(at - eye);
 	vec4 u = normalize(vec4(cross(n, up), 0.0));
 	vec4 v = normalize(vec4(cross(u, n), 0.0));
@@ -806,13 +806,13 @@ void keyboard(unsigned char key, int mousex, int mousey)
 	case 'w': tAngle += 5;
 		eye += at*cameraSpeed;
 		break;
-	case 's': 
+	case 's':
 		eye -= at*cameraSpeed;
 		break;
-	case 'c': 
+	case 'c':
 		eye.y += cameraSpeed;
 		break;
-	case 'C': 
+	case 'C':
 		eye.y -= cameraSpeed;
 		break;
 	case 'x': fov += 5;
@@ -834,7 +834,7 @@ void keyboard(unsigned char key, int mousex, int mousey)
 	case 'i':	// Ç°½ø
 		robotChangeGesture();
 		runX -= stepSize;
-		theta[Torso] =  180.0;
+		theta[Torso] = 180.0;
 		break;
 	case 'k':	// ºóÍË
 		robotChangeGesture();
@@ -904,7 +904,7 @@ int main(int argc, char **argv)
 	glutInitWindowSize(1200, 800);
 	glutInitContextVersion(3, 2);
 	glutInitContextProfile(GLUT_CORE_PROFILE);
-	int window=glutCreateWindow("2017152032_ÑîÖ¾·¢_ÆÚÄ©´ó×÷Òµ");
+	int window = glutCreateWindow("2017152032_ÑîÖ¾·¢_ÆÚÄ©´ó×÷Òµ");
 	glewExperimental = GL_TRUE;
 	glewInit();
 
@@ -955,7 +955,7 @@ int main(int argc, char **argv)
 	my_mesh4->set_translate(0, 0, 0);	// Æ½ÒÆ
 	my_mesh4->set_theta(0, 0, 0);	// Ðý×ªÖá
 	my_mesh4->set_theta_step(0.0, 0.0, 0.0);	// Ðý×ªËÙ¶È 
-	my_meshs.push_back(my_mesh4);	
+	my_meshs.push_back(my_mesh4);
 	mp_->add_mesh(my_mesh4);
 
 
