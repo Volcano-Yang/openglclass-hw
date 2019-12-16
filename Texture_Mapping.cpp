@@ -1,5 +1,4 @@
-// rotating cube with two texture objects
-// change textures with 1 and 2 keys
+//绘制机器人和天空盒
 
 #include "Angel.h"
 #include "mesh.h"
@@ -908,6 +907,8 @@ int main(int argc, char **argv)
 	glewExperimental = GL_TRUE;
 	glewInit();
 
+
+	//----------------------------------------------------------------------------
 	//制作天空盒
 	mp_ = new Mesh_Painter;
 	// 绘制墙壁并贴上纹理
@@ -991,6 +992,10 @@ int main(int argc, char **argv)
 		delete my_meshs[i];
 	}
 	delete mp_;
+	//----------------------------------------------------------------------------
+
+
+
 
 	return 0;
 }

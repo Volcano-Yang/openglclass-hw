@@ -1,3 +1,5 @@
+// 对OBJ对象添加纹理
+
 #include "Mesh_Painter.h"
 #include "FreeImage.h"
 #include <iostream>

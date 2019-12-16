@@ -1,3 +1,5 @@
+
+// 和实验四的代码合并过了
 #pragma once
 
 #include <vector>
@@ -42,12 +44,17 @@ typedef std::vector<std::pair<int, int> > Edges;
 typedef std::vector<unsigned int> FaceList;
 
 
+
+
+
+
 class My_Mesh
 {
 public:
 	My_Mesh();
 	~My_Mesh();
 
+	void load_obj(std::string obj_File);
 	void set_texture_file(std::string s);
 	std::string get_texture_file();
 
@@ -80,7 +87,6 @@ public:
 	static void normal_to_color(float, float, float, float&, float&, float&);
 	void set_translate(float, float, float);
 	void get_translate(float& x, float& y, float& z);
-
 private:
 	void clear_data();
 private:

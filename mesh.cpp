@@ -1,3 +1,5 @@
+// 读取obj文件
+
 #include "mesh.h"
 #include <sstream>
 #include <fstream>
@@ -829,3 +831,94 @@ void My_Mesh::add_theta_step()
 	Theta[1] = Theta[1] + Theta_step[1];
 	Theta[2] = Theta[2] + Theta_step[2];*/
 };
+
+
+// 和并过来实验四的读取OBJ的代码
+void My_Mesh::load_obj(std::string obj_File)
+{
+	//@task根据不同文件设置大小
+	float size;
+	if (obj_File == "texture/wawa.obj")
+		size = 10;
+	else
+		size = 0.5;
+	//@task初始化数据
+	this->clear_data();
+	this->m_center_ = point3f(0, 0, 0);
+	this->m_min_box_ = point3f(-size, -size, -size);
+	this->m_max_box_ = point3f(size, size, size);
+	//@task读取obj文件
+	ifstream ifs(obj_File);
+	string s;
+	while (getline(ifs, s)) {
+		if (s.length() < 2)//忽略无关信息
+			continue;
+		if (s[0] == 'v'&&s[1] == ' ') {//读取顶点坐标
+			istringstream in(s);//istringstream能将子字符串按空格分隔开，从而类似于控制台手动输入
+			string head;
+			float x, y, z;
+			in >> head >> x >> y >> z;//类似于控制台手动输入
+			m_vertices_.push_back(x);
+			m_vertices_.push_back(y);
+			m_vertices_.push_back(z);
+		}
+		else if (s[0] == 'v'&&s[1] == 't') {//读取贴图坐标
+			istringstream in(s);
+			string head;
+			float x, y;
+			in >> head >> x >> y;
+			m_vt_list_.push_back(x);
+			m_vt_list_.push_back(y);
+		}
+		else if (s[0] == 'v'&&s[1] == 'n') {//读取法线并计算和保存颜色
+			istringstream in(s);
+			string head;
+			float x, y, z;
+			in >> head >> x >> y >> z;
+			m_normals_.push_back(x);
+			m_normals_.push_back(y);
+			m_normals_.push_back(z);
+			float r, g, b;
+			normal_to_color(x, y, z, r, g, b);
+			m_color_list_.push_back(r);
+			m_color_list_.push_back(g);
+			m_color_list_.push_back(b);
+		}
+		else if (s[0] == 'f') {//读取索引号
+			for (int k = s.size() - 1; k >= 0; k--)
+			{
+				if (s[k] == '/')//将'/'转换成空格，便于istringstream进行空格分割字符串
+					s[k] = ' ';
+			}
+			istringstream in(s);
+			string head;
+			in >> head;
+			int i = 0;
+			int one, two, three;
+			while (i < 3)//x,y,z都有对应的索引
+			{
+				if (m_vertices_.size() != 0)
+				{
+					in >> one;
+					one -= 1;
+					m_faces_.push_back(one);
+				}
+				if (m_vt_list_.size() != 0)
+				{
+					in >> two;
+					two -= 1;
+					m_faces_.push_back(two);
+				}
+				if (m_normals_.size() != 0)
+				{
+					in >> three;
+					three -= 1;
+					m_faces_.push_back(three);
+				}
+				i++;
+			}
+		}
+	}
+
+
+}

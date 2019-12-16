@@ -24,6 +24,11 @@
     <ClCompile Include="Mesh_Painter.cpp" />
     <ClCompile Include="Texture_Mapping.cpp" />
   </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="FreeImage.h" />
+    <ClInclude Include="mesh.h" />
+    <ClInclude Include="Mesh_Painter.h" />
+  </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{8EC4E730-09BE-4882-BA05-EE0FB2977218}</ProjectGuid>
     <RootNamespace>openglfinalhw</RootNamespace>

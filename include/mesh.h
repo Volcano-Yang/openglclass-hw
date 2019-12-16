@@ -107,5 +107,6 @@ private:
 	GLfloat  Theta[3];
 	GLfloat  Theta_step[3];
 	GLfloat vTranslation[3];
+	void load_obj(std::string obj_File);
 };
 
