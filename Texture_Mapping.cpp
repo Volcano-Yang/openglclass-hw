@@ -77,6 +77,23 @@ float increase = 1.0;	// 绘制机器人时的位置偏移值
 
 GLuint sflag;	// 用于传入片元着色器，以控制阴影部分不添加漫反射、镜面反射和环境光 
 
+//控制游戏结束
+int end = 0;
+
+
+//天空盒贴图
+string pictrue1[6] = { "skybox/rainforest_bk.tga", "skybox/rainforest_lf.tga","skybox/rainforest_ft.tga", "skybox/rainforest_rt.tga","skybox/rainforest_dn.tga","skybox/rainforest_up.tga" };
+
+string pictrue2[6] = { "skybox/rainforest2_bk.tga", "skybox/rainforest2_lf.tga","skybox/rainforest2_ft.tga", "skybox/rainforest2_rt.tga","skybox/rainforest2_dn.tga","skybox/rainforest2_up.tga" };
+
+string pictrue5[6] = { "skybox/hills2_bk.tga", "skybox/hills2_lf.tga","skybox/hills2_ft.tga", "skybox/hills2_rt.tga","skybox/hills2_dn.tga","skybox/hills2_up.tga" };
+
+string pictrue4[6] = { "skybox/hills_bk.tga", "skybox/hills_lf.tga","skybox/hills_ft.tga", "skybox/hills_rt.tga","skybox/hills_dn.tga","skybox/hills_up.tga" };
+
+string pictrue3[6] = { "skybox/plains-of-abraham_bk.tga", "skybox/plains-of-abraham_lf.tga","skybox/plains-of-abraham_ft.tga", "skybox/plains-of-abraham_rt.tga","skybox/plains-of-abraham_dn.tga","skyboxplains-of-abraham_up.tga" };
+
+string pictrue6[6] = { "skybox/island_bk.tga", "skybox/island_lf.tga","skybox/island_ft.tga", "skybox/island_rt.tga","skybox/island_dn.tga","skybox/island_up.tga" };
+
 
 namespace Camera
 {
@@ -823,6 +840,79 @@ void changeRobotSize(float x) {
 }
 
 
+Mesh_Painter* skybox(string picture[])
+{
+	//----------------------------------------------------------------------------
+	//制作天空盒
+	mp_ = new Mesh_Painter;
+	// 绘制墙壁并贴上纹理
+	float wall_height = -50; // 控制墙在y轴上高度的偏差
+	My_Mesh* my_mesh5 = new My_Mesh;
+	my_mesh5->generate_wallbk(4);
+	my_mesh5->set_texture_file(picture[0]);//back
+	my_mesh5->set_translate(0, wall_height, -24.25);//平移
+	my_mesh5->set_theta(0, 0, 0);//旋转轴
+	my_mesh5->set_theta_step(0.0, 0.0, 0.0);//旋转速度
+	my_meshs.push_back(my_mesh5);
+	mp_->add_mesh(my_mesh5);
+
+	My_Mesh* my_mesh6 = new My_Mesh;
+	my_mesh6->generate_walllf(4);
+	my_mesh6->set_texture_file(picture[1]);//left
+	my_mesh6->set_translate(-24.27, wall_height, 0);
+	my_mesh6->set_theta(0, 0, 0);
+	my_mesh6->set_theta_step(0.0, 0.0, 0.0);
+	my_meshs.push_back(my_mesh6);
+	mp_->add_mesh(my_mesh6);
+
+	My_Mesh* my_mesh7 = new My_Mesh;
+	my_mesh7->generate_wallft(4);
+	my_mesh7->set_texture_file(picture[2]);//front
+	my_mesh7->set_translate(0, wall_height, 24.25);
+	my_mesh7->set_theta(0, 0, 0);
+	my_mesh7->set_theta_step(0.0, 0.0, 0.0);
+	my_meshs.push_back(my_mesh7);
+	mp_->add_mesh(my_mesh7);
+
+	My_Mesh* my_mesh8 = new My_Mesh;
+	my_mesh8->generate_wallrt(4);
+	my_mesh8->set_texture_file(picture[3]);//right
+	my_mesh8->set_translate(24.0, wall_height, 0);
+	my_mesh8->set_theta(0, 0, 0);
+	my_mesh8->set_theta_step(0.0, 0.0, 0.0);
+	my_meshs.push_back(my_mesh8);
+	mp_->add_mesh(my_mesh8);
+
+	// 生成地面
+	My_Mesh* my_mesh4 = new My_Mesh;
+	my_mesh4->generate_floor(4);	// 生成平面需要的点、面、向量
+	my_mesh4->set_texture_file(picture[4]);//指定纹理图像文件,down
+	my_mesh4->set_translate(0, 0, 0);	// 平移
+	my_mesh4->set_theta(0, 0, 0);	// 旋转轴
+	my_mesh4->set_theta_step(0.0, 0.0, 0.0);	// 旋转速度 
+	my_meshs.push_back(my_mesh4);
+	mp_->add_mesh(my_mesh4);
+
+
+	//生成天花板
+	My_Mesh* my_mesh9 = new My_Mesh;
+	my_mesh9->generate_floor(4);
+	my_mesh9->set_texture_file(picture[5]);//up
+	my_mesh9->set_translate(0, 116., 0);  //116  118
+	my_mesh9->set_theta(0, 0, 0);
+	my_mesh9->set_theta_step(0.0, 0.0, 0.0);
+	my_meshs.push_back(my_mesh9);
+	mp_->add_mesh(my_mesh9);
+
+	mp_->init_shaders("v_texture.glsl", "f_texture.glsl");
+	mp_->update_vertex_buffer();
+	mp_->update_texture();
+
+	return mp_;
+}
+
+
+
 
 //----------------------------------------------------------------------------
 //控制相机位置和机器人位置的的函数
@@ -897,17 +987,41 @@ void keyboard(unsigned char key, int mousex, int mousey)
 
 
 	//改变机器人的大小
-	case 'b':	
-		cout << "机器人变大了" << endl;
+	case '=':	
 		changeRobotSize(1.5);
+		cout << "机器人变大了" << endl;
 		break;
 
-	case 'n':	
-		
-		cout << "机器人变小了" << endl;
+	case '-':	
 		changeRobotSize(0.8);
+		cout << "机器人变小了" << endl;
 		break;
 
+		//改变天空图
+	case '1':
+		mp_ = skybox(pictrue1);
+		cout << "天空图改变" << endl;
+		break;
+	case '2':
+		mp_ = skybox(pictrue2);
+		cout << "天空图改变" << endl;
+		break;
+	case '3':
+		mp_ = skybox(pictrue3);
+		cout << "天空图改变" << endl;
+		break;
+	case '4':
+		mp_ = skybox(pictrue4);
+		cout << "天空图改变" << endl;
+		break;
+	case '5':
+		mp_ = skybox(pictrue5);
+		cout << "天空图改变" << endl;
+		break;
+	case '6':
+		mp_ = skybox(pictrue6);
+		cout << "天空图改变" << endl;
+		break;
 
 		// 机器人姿势重置
 	case ' ':
@@ -951,8 +1065,6 @@ void keyboard(unsigned char key, int mousex, int mousey)
 		theta[LeftLowerLeg] = 0;
 		break;
 
-
-
 	default:
 		break;
 	}
@@ -960,13 +1072,6 @@ void keyboard(unsigned char key, int mousex, int mousey)
 
 }
 
-void skybox(Mesh_Painter* mp_)
-{
-
-}
-
-
-//----------------------------------------------------------------------------
 
 int main(int argc, char **argv)
 {
@@ -979,72 +1084,7 @@ int main(int argc, char **argv)
 	glewExperimental = GL_TRUE;
 	glewInit();
 
-
-	//----------------------------------------------------------------------------
-	//制作天空盒
-	mp_ = new Mesh_Painter;
-	// 绘制墙壁并贴上纹理
-	float wall_height = -50; // 控制墙在y轴上高度的偏差
-	My_Mesh* my_mesh5 = new My_Mesh;
-	my_mesh5->generate_wallbk(4);
-	my_mesh5->set_texture_file("skybox/rainforest_bk.tga");//back
-	my_mesh5->set_translate(0, wall_height, -24.25);//平移
-	my_mesh5->set_theta(0, 0, 0);//旋转轴
-	my_mesh5->set_theta_step(0.0, 0.0, 0.0);//旋转速度
-	my_meshs.push_back(my_mesh5);
-	mp_->add_mesh(my_mesh5);
-
-	My_Mesh* my_mesh6 = new My_Mesh;
-	my_mesh6->generate_walllf(4);
-	my_mesh6->set_texture_file("skybox/rainforest_lf.tga");//left
-	my_mesh6->set_translate(-24.27, wall_height, 0);
-	my_mesh6->set_theta(0, 0, 0);
-	my_mesh6->set_theta_step(0.0, 0.0, 0.0);
-	my_meshs.push_back(my_mesh6);
-	mp_->add_mesh(my_mesh6);
-
-	My_Mesh* my_mesh7 = new My_Mesh;
-	my_mesh7->generate_wallft(4);
-	my_mesh7->set_texture_file("skybox/rainforest_ft.tga");//front
-	my_mesh7->set_translate(0, wall_height, 24.25);
-	my_mesh7->set_theta(0, 0, 0);
-	my_mesh7->set_theta_step(0.0, 0.0, 0.0);
-	my_meshs.push_back(my_mesh7);
-	mp_->add_mesh(my_mesh7);
-
-	My_Mesh* my_mesh8 = new My_Mesh;
-	my_mesh8->generate_wallrt(4);
-	my_mesh8->set_texture_file("skybox/rainforest_rt.tga");//right
-	my_mesh8->set_translate(24.0, wall_height, 0);
-	my_mesh8->set_theta(0, 0, 0);
-	my_mesh8->set_theta_step(0.0, 0.0, 0.0);
-	my_meshs.push_back(my_mesh8);
-	mp_->add_mesh(my_mesh8);
-
-	// 生成地面
-	My_Mesh* my_mesh4 = new My_Mesh;
-	my_mesh4->generate_floor(4);	// 生成平面需要的点、面、向量
-	my_mesh4->set_texture_file("skybox/rainforest_dn.tga");//指定纹理图像文件,down
-	my_mesh4->set_translate(0, 0, 0);	// 平移
-	my_mesh4->set_theta(0, 0, 0);	// 旋转轴
-	my_mesh4->set_theta_step(0.0, 0.0, 0.0);	// 旋转速度 
-	my_meshs.push_back(my_mesh4);
-	mp_->add_mesh(my_mesh4);
-
-
-	//生成天花板
-	My_Mesh* my_mesh9 = new My_Mesh;
-	my_mesh9->generate_floor(4);
-	my_mesh9->set_texture_file("skybox/rainforest_up.tga");//up
-	my_mesh9->set_translate(0, 116., 0);  //116  118
-	my_mesh9->set_theta(0, 0, 0);
-	my_mesh9->set_theta_step(0.0, 0.0, 0.0);
-	my_meshs.push_back(my_mesh9);
-	mp_->add_mesh(my_mesh9);
-
-	mp_->init_shaders("v_texture.glsl", "f_texture.glsl");
-	mp_->update_vertex_buffer();
-	mp_->update_texture();
+	mp_ =skybox(pictrue1);
 
 	init();
 
@@ -1065,8 +1105,4 @@ int main(int argc, char **argv)
 	}
 	delete mp_;
 	//----------------------------------------------------------------------------
-
-
-
-	return 0;
 }

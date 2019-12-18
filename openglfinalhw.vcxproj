@@ -29,6 +29,10 @@
     <ClInclude Include="mesh.h" />
     <ClInclude Include="Mesh_Painter.h" />
   </ItemGroup>
+  <ItemGroup>
+    <None Include="f_texture.glsl" />
+    <None Include="v_texture.glsl" />
+  </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{8EC4E730-09BE-4882-BA05-EE0FB2977218}</ProjectGuid>
     <RootNamespace>openglfinalhw</RootNamespace>

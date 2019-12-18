@@ -39,4 +39,12 @@
       <Filter>头文件</Filter>
     </ClInclude>
   </ItemGroup>
+  <ItemGroup>
+    <None Include="f_texture.glsl">
+      <Filter>源文件</Filter>
+    </None>
+    <None Include="v_texture.glsl">
+      <Filter>源文件</Filter>
+    </None>
+  </ItemGroup>
 </Project>
