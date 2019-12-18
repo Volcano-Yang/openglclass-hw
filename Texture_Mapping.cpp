@@ -45,6 +45,7 @@ float fov = 100.0;
 float aspect = 1.0;
 float zN = 0.1;
 float zF = 100.0;
+
 //相机参数
 vec4 eye;
 vec4 at;
@@ -56,13 +57,14 @@ GLfloat lastX = 1300 / 2.0;
 GLfloat lastY = 800 / 2.0;
 GLfloat yaw = -90.0f;
 GLfloat pitch = 0.0f;
+
 // 控制视角的角度初始值
 float rad = 50.0;
 float tAngle = 25.0;
 float pAngle = 0.0;
 
 // 光源
-vec3 lightPos(5, 5, 10);
+vec3 lightPos(21.92,24.78,10);
 GLuint lightPosID;
 
 // 控制机器人行走的参数
@@ -70,11 +72,11 @@ int runGesture = 1;	// 控制切换行走姿势
 float runX = 0, runY = 0, runZ = 0;	// 控制移动的坐标
 int cameramouse = 0;	// 控制切换第一视角行走模式
 int movetorso = 0;	// 控制切换第一视角行走模式
-int stepSize = 2;	// 控制机器人每一步的步长
+int stepSize = 1;	// 控制机器人每一步的步长
 float increase = 1.0;	// 绘制机器人时的位置偏移值
 
-						// 用于传入片元着色器，以控制阴影部分不添加漫反射、镜面反射和环境光 
-GLuint sflag;
+GLuint sflag;	// 用于传入片元着色器，以控制阴影部分不添加漫反射、镜面反射和环境光 
+
 
 namespace Camera
 {
@@ -154,14 +156,6 @@ color4 vertex_colors[8] = {
 	color4(0.0, 1.0, 1.0, 1.0)   // 青色，7
 };
 
-// 给机器人的各个部位设置颜色
-point4 color_torso = vertex_colors[4];
-point4 color_head = vertex_colors[7];
-point4 color_upper_arm = vertex_colors[6];
-point4 color_lower_arm = vertex_colors[3];
-point4 color_upper_leg = vertex_colors[0];
-point4 color_lower_leg = vertex_colors[5];
-
 //----------------------------------------------------------------------------
 //矩阵栈
 class MatrixStack {
@@ -199,19 +193,42 @@ GLuint       ModelView, Projection;
 GLuint       draw_color;
 //----------------------------------------------------------------------------
 
-// 定义机器人各个部位的宽和高
-#define TORSO_HEIGHT 5.0
-#define TORSO_WIDTH 3.0
-#define UPPER_ARM_HEIGHT 3.0
-#define LOWER_ARM_HEIGHT 2.0
-#define UPPER_LEG_WIDTH  0.5
-#define LOWER_LEG_WIDTH  0.5
-#define LOWER_LEG_HEIGHT 2.5
-#define UPPER_LEG_HEIGHT 3.0
-#define UPPER_ARM_WIDTH  0.5
-#define LOWER_ARM_WIDTH  0.5
-#define HEAD_HEIGHT 1.5
-#define HEAD_WIDTH 1.0
+
+// 给机器人的各个部位设置颜色
+point4 color_head = vertex_colors[6];
+point4 color_torso = vertex_colors[0];
+
+point4 color_upper_arm = vertex_colors[6];
+point4 color_lower_arm = vertex_colors[0];
+
+point4 color_upper_leg = vertex_colors[6];
+point4 color_lower_leg = vertex_colors[0];
+
+
+// 定义机器人各个部位的大小
+
+#define HEAD_HEIGHT 2.5
+#define HEAD_WIDTH 2.5
+
+#define TORSO_HEIGHT 5.5
+#define TORSO_WIDTH 4.0
+
+#define UPPER_ARM_HEIGHT 2.0
+#define UPPER_ARM_WIDTH  1
+
+#define LOWER_ARM_HEIGHT 1.5
+#define LOWER_ARM_WIDTH  1
+
+#define UPPER_LEG_WIDTH  1.5
+#define UPPER_LEG_HEIGHT 1
+
+#define LOWER_LEG_HEIGHT 2
+#define LOWER_LEG_WIDTH  1.5
+
+
+
+
+
 
 // 建立机器人部件项索引，以便使用关节角度
 enum {
@@ -583,6 +600,7 @@ init()
 	glClearColor(0.5, 0.5, 0.5, 1.0);
 
 }
+
 ////////////////////////////////////////////
 void show_robot()
 {
@@ -650,14 +668,12 @@ display(void)
 	mp_->draw_meshes();//画图形
 	glUseProgram(program);
 	show_robot();	// 绘制机器人
+	show_robot();
 
 	glutSwapBuffers();
 };
 
-//----------------------------------------------------------------------------
-void showTip() {
-	cout << "*********************************************" << endl;
-}
+
 
 
 void
@@ -724,6 +740,8 @@ void mousepassmove(int x, int y) {
 	}
 }
 
+//----------------------------------------------------------------------------
+//控制光源的函数
 void mouseControllight(int x, int y)
 {
 	if (mouseLeftDown)
@@ -749,6 +767,8 @@ void mouseControllight(int x, int y)
 	if (lightPos[1] <= 1)
 		lightPos[1] = 1;
 	glutPostRedisplay();
+
+	cout << "当前光源的位置：" << lightPos << endl;
 }
 
 //----------------------------------------------------------------------------
@@ -759,7 +779,7 @@ idle(void)
 }
 
 //----------------------------------------------------------------------------
-// 控制机器人姿势的函数
+// 控制机器人姿势的函数 设置两种姿势切换
 void robotChangeGesture() {
 	if (runGesture == 1) {
 		theta[LeftUpperArm] = 40;
@@ -787,6 +807,8 @@ void robotChangeGesture() {
 
 
 
+//----------------------------------------------------------------------------
+//控制相机位置和机器人位置的的函数
 void keyboard(unsigned char key, int mousex, int mousey)
 {
 	GLfloat cameraSpeed = 1.0f;
@@ -798,25 +820,34 @@ void keyboard(unsigned char key, int mousex, int mousey)
 		// 控制相机变换
 	case 'd':
 		eye += normalize(cross(at, up)) * cameraSpeed;
+		cout << "当前相机的参数： eye:" << eye << " fov:" << fov << endl;
 		break;
 	case 'a':
 		eye -= normalize(cross(at, up)) * cameraSpeed;
+		cout << "当前相机的参数： eye:" << eye << " fov:" << fov << endl;
 		break;
-	case 'w': tAngle += 5;
+	case 'w': 
+		tAngle += 5;
 		eye += at*cameraSpeed;
+		cout << "当前相机的参数： eye:" << eye << " fov:" << fov << endl;
 		break;
 	case 's':
 		eye -= at*cameraSpeed;
+		cout << "当前相机的参数： eye:" << eye << " fov:" << fov << endl;
 		break;
-	case 'c':
+	case 'z':
 		eye.y += cameraSpeed;
+		cout << "当前相机的参数： eye:" << eye << " fov:" << fov << endl;
 		break;
-	case 'C':
+	case 'x':
 		eye.y -= cameraSpeed;
+		cout << "当前相机的参数： eye:" << eye << " fov:" << fov << endl;
 		break;
-	case 'x': fov += 5;
+	case 'v': fov += 5;
+		cout << "当前相机的参数： eye:" << eye << " fov:" << fov << endl;
 		break;
-	case 'X': fov -= 5;
+	case 'c': fov -= 5;
+		cout << "当前相机的参数： eye:" << eye << " fov:" << fov << endl;
 		break;
 
 		// 控制机器人移动
@@ -824,26 +855,27 @@ void keyboard(unsigned char key, int mousex, int mousey)
 		robotChangeGesture();	// 切换姿势
 		runZ -= stepSize;	// 走出一步，步长为stepSize
 		theta[Torso] = 180.0 + 90.0;// 机器人身体转向前进的方向
+		cout << "机器人当前位置：（"<<runX<<" , "<<runY<<" , "<<runZ <<" )"<< endl;
 		break;
 	case 'l':	// 右移
 		robotChangeGesture();
 		runZ += stepSize;
 		theta[Torso] = 180.0 - 90.0;
+		cout << "机器人当前位置：（" << runX << " , " << runY << " , " << runZ << " )" << endl;
 		break;
 	case 'i':	// 前进
 		robotChangeGesture();
 		runX -= stepSize;
 		theta[Torso] = 180.0;
+		cout << "机器人当前位置：（" << runX << " , " << runY << " , " << runZ << " )" << endl;
 		break;
 	case 'k':	// 后退
 		robotChangeGesture();
 		runX += stepSize;
-		theta[Torso] = 0;
+		theta[Torso] = 0; 
+		cout << "机器人当前位置：（" << runX << " , " << runY << " , " << runZ << " )" << endl;
 		break;
 
-	case 'f':
-		theta[angle] += 2;
-		break;
 
 		// 机器人姿势重置
 	case ' ':
@@ -893,6 +925,7 @@ void keyboard(unsigned char key, int mousex, int mousey)
 	glutPostRedisplay();
 
 }
+
 
 //----------------------------------------------------------------------------
 
