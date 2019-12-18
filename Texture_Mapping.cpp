@@ -207,26 +207,23 @@ point4 color_lower_leg = vertex_colors[0];
 
 // 定义机器人各个部位的大小
 
-#define HEAD_HEIGHT 2.5
-#define HEAD_WIDTH 2.5
+float HEAD_HEIGHT = 2.5;
+float HEAD_WIDTH = 2.5;
 
-#define TORSO_HEIGHT 5.5
-#define TORSO_WIDTH 4.0
+float TORSO_HEIGHT = 5.5;
+float TORSO_WIDTH = 4.0;
 
-#define UPPER_ARM_HEIGHT 2.0
-#define UPPER_ARM_WIDTH  1
+float UPPER_ARM_HEIGHT = 2.0;
+float UPPER_ARM_WIDTH = 1;
 
-#define LOWER_ARM_HEIGHT 1.5
-#define LOWER_ARM_WIDTH  1
+float LOWER_ARM_HEIGHT = 1.5;
+float LOWER_ARM_WIDTH = 1;
 
-#define UPPER_LEG_WIDTH  1.5
-#define UPPER_LEG_HEIGHT 1
+float UPPER_LEG_WIDTH  =1.5;
+float UPPER_LEG_HEIGHT =1;
 
-#define LOWER_LEG_HEIGHT 2
-#define LOWER_LEG_WIDTH  1.5
-
-
-
+float LOWER_LEG_HEIGHT = 2;
+float LOWER_LEG_WIDTH  = 1.5;
 
 
 
@@ -805,6 +802,26 @@ void robotChangeGesture() {
 	}
 }
 
+void changeRobotSize(float x) {
+	HEAD_HEIGHT *= x;
+	HEAD_WIDTH *= x;
+
+	TORSO_HEIGHT *= x;
+	TORSO_WIDTH *= x;
+
+	UPPER_ARM_HEIGHT *= x;
+	UPPER_ARM_WIDTH *= x;
+
+	LOWER_ARM_HEIGHT *= x;
+	LOWER_ARM_WIDTH *= x;
+
+	UPPER_LEG_WIDTH *= x;
+	UPPER_LEG_HEIGHT *= x;
+
+	LOWER_LEG_HEIGHT *= x;
+	LOWER_LEG_WIDTH *= x;
+}
+
 
 
 //----------------------------------------------------------------------------
@@ -815,6 +832,7 @@ void keyboard(unsigned char key, int mousex, int mousey)
 	vec4 n = normalize(at - eye);
 	vec4 u = normalize(vec4(cross(n, up), 0.0));
 	vec4 v = normalize(vec4(cross(u, n), 0.0));
+
 	switch (key)
 	{
 		// 控制相机变换
@@ -877,6 +895,20 @@ void keyboard(unsigned char key, int mousex, int mousey)
 		break;
 
 
+
+	//改变机器人的大小
+	case 'b':	
+		cout << "机器人变大了" << endl;
+		changeRobotSize(1.5);
+		break;
+
+	case 'n':	
+		
+		cout << "机器人变小了" << endl;
+		changeRobotSize(0.8);
+		break;
+
+
 		// 机器人姿势重置
 	case ' ':
 		theta[Torso] = 0;
@@ -919,10 +951,17 @@ void keyboard(unsigned char key, int mousex, int mousey)
 		theta[LeftLowerLeg] = 0;
 		break;
 
+
+
 	default:
 		break;
 	}
 	glutPostRedisplay();
+
+}
+
+void skybox(Mesh_Painter* mp_)
+{
 
 }
 
