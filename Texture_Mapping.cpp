@@ -794,7 +794,35 @@ idle(void)
 
 //----------------------------------------------------------------------------
 // 控制机器人姿势的函数 设置两种姿势切换
+
+void robotChangeGesture(int a) {
+	cout << "当前runGesture：" << runGesture << endl;
+	if (a == 1) {
+		theta[LeftUpperArm] = 40;
+		theta[LeftLowerArm] = 115;
+		theta[RightUpperArm] = 340;
+		theta[RightLowerArm] = 105;
+		theta[RightUpperLeg] = 20;
+		theta[RightLowerLeg] = 265;
+		theta[LeftUpperLeg] = 340;
+		theta[LeftLowerLeg] = 0.0;
+	}
+	else if (a == 2)
+	{
+		theta[LeftUpperArm] = 340;
+		theta[LeftLowerArm] = 105;
+		theta[RightUpperArm] = 40;
+		theta[RightLowerArm] = 115;
+		theta[RightUpperLeg] = 340;
+		theta[RightLowerLeg] = 0;
+		theta[LeftUpperLeg] = 20;
+		theta[LeftLowerLeg] = 265;
+		runGesture = 1;
+	}
+}
+
 void robotChangeGesture() {
+	cout << "当前runGesture：" << runGesture << endl;
 	if (runGesture == 1) {
 		theta[LeftUpperArm] = 40;
 		theta[LeftLowerArm] = 115;
@@ -984,6 +1012,16 @@ void keyboard(unsigned char key, int mousex, int mousey)
 		cout << "机器人当前位置：（" << runX << " , " << runY << " , " << runZ << " )" << endl;
 		break;
 
+		//改变机器人的大小
+	case '7':
+		robotChangeGesture(1);
+		cout << "机器人姿势改变" << endl;
+		break;
+
+	case '8':
+		robotChangeGesture(2);
+		cout << "机器人姿势改变" << endl;
+		break;
 
 
 	//改变机器人的大小
