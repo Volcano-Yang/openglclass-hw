@@ -77,8 +77,8 @@ float increase = 1.0;	// 绘制机器人时的位置偏移值
 
 GLuint sflag;	// 用于传入片元着色器，以控制阴影部分不添加漫反射、镜面反射和环境光 
 
-//控制游戏结束
-int end = 0;
+//控制能量
+int energy = 0;
 
 
 //天空盒贴图
@@ -689,7 +689,6 @@ display(void)
 
 
 
-
 void
 mouse(int button, int state, int x, int y)
 {
@@ -865,6 +864,19 @@ void changeRobotSize(float x) {
 
 	LOWER_LEG_HEIGHT *= x;
 	LOWER_LEG_WIDTH *= x;
+
+	energy = 0;
+}
+
+//奔跑增加能量
+void energymaneger() {
+	energy += 5;
+
+	if (energy >= 500)
+		changeRobotSize(1.5);
+
+	cout << "当前能量：" << energy << endl;
+
 }
 
 
@@ -939,6 +951,33 @@ Mesh_Painter* skybox(string picture[])
 	return mp_;
 }
 
+void judugeCross() {
+	if (runX < -70)
+	{
+		mp_ = skybox(pictrue2);
+		runX = 70;
+		cout << "机器人穿越啦 "<< endl;
+	}
+	else if(runX > 70)
+	{
+		mp_ = skybox(pictrue1);
+		runX = -70;
+		cout << "机器人穿越啦 " << endl;
+	}
+	else if (runZ < -77)
+	{
+		mp_ = skybox(pictrue3);
+		runZ = 77;
+		cout << "机器人穿越啦 " << endl;
+	}
+	else if (runZ > 77)
+	{
+		mp_ = skybox(pictrue4);
+		runZ = -77;
+		cout << "机器人穿越啦 " << endl;
+	}
+}
+
 
 
 
@@ -991,24 +1030,32 @@ void keyboard(unsigned char key, int mousex, int mousey)
 		robotChangeGesture();	// 切换姿势
 		runZ -= stepSize;	// 走出一步，步长为stepSize
 		theta[Torso] = 180.0 + 90.0;// 机器人身体转向前进的方向
+		energymaneger();
+		judugeCross();
 		cout << "机器人当前位置：（"<<runX<<" , "<<runY<<" , "<<runZ <<" )"<< endl;
 		break;
 	case 'l':	// 右移
 		robotChangeGesture();
 		runZ += stepSize;
 		theta[Torso] = 180.0 - 90.0;
+		energymaneger();
+		judugeCross();
 		cout << "机器人当前位置：（" << runX << " , " << runY << " , " << runZ << " )" << endl;
 		break;
 	case 'i':	// 前进
 		robotChangeGesture();
 		runX -= stepSize;
 		theta[Torso] = 180.0;
+		energymaneger();
+		judugeCross();
 		cout << "机器人当前位置：（" << runX << " , " << runY << " , " << runZ << " )" << endl;
 		break;
 	case 'k':	// 后退
 		robotChangeGesture();
 		runX += stepSize;
 		theta[Torso] = 0; 
+		energymaneger();
+		judugeCross();
 		cout << "机器人当前位置：（" << runX << " , " << runY << " , " << runZ << " )" << endl;
 		break;
 
