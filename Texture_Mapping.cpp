@@ -204,7 +204,7 @@ public:
 	}
 };
 
-MatrixStack  mvstack;
+MatrixStack  mvstack; //储存机器人的矩阵
 mat4         model_view;
 GLuint       ModelView, Projection;
 GLuint       draw_color;
@@ -518,21 +518,46 @@ right_lower_leg()
 	model_view = mvstack.pop();//恢复父节点矩阵
 }
 
-//----------------------------------------------------------------------------
-
-void
-menu(int option)
+void show_robot()
 {
-	if (option == controlcameraon) {
-		cameramouse = 1;//开启鼠标控制相机镜头
-	}
-	else if (option == controlcameraoff) {
-		cameramouse = 0;//关闭鼠标控制相机镜头
-	}
-	else
-		angle = option;//切换要控制转动的部件
+	glUseProgram(program);
+	glBindVertexArray(vao[0]);
+	model_view = Translate(runX * sin(DegreesToRadians) + runZ, 0, runX * cos(DegreesToRadians))
+		* Translate(0.0, increase + UPPER_LEG_HEIGHT + LOWER_LEG_HEIGHT, 0.0)*RotateY(theta[Torso]);//躯干变换矩阵pAngle*pAngle*
+	torso();//躯干绘制
+	mvstack.push(model_view);//保存躯干变换矩阵
+	model_view *= (Translate(0.0, TORSO_HEIGHT, 0.0) *RotateY(theta[Head]));
+	head();//头部绘制
+	model_view = mvstack.pop();//恢复躯干变换矩阵
+	glBindVertexArray(vao[0]);
+	mvstack.push(model_view); //保存躯干变换矩阵
+							  //乘以上臂的变换矩阵(注意此处最后乘了RotateX，代表改变theta[LeftUpperArm]会改变上臂的旋转角度，以X轴为旋转轴)
+	model_view *= (Translate(0.5*(TORSO_WIDTH + UPPER_ARM_WIDTH), 0.9 * TORSO_HEIGHT, 0.0) *RotateX(theta[LeftUpperArm])*RotateZ(180));
+	left_upper_arm();//左上臂绘制
+	model_view *= (Translate(0.0, UPPER_ARM_HEIGHT, 0.0) *RotateX(theta[LeftLowerArm]));
+	left_lower_arm();//左下臂绘制
+	model_view = mvstack.pop();//恢复躯干变换矩阵
+	mvstack.push(model_view); //保存躯干变换矩阵
+	model_view *= (Translate(-0.5*(TORSO_WIDTH + UPPER_ARM_WIDTH), 0.9 * TORSO_HEIGHT, 0.0) *RotateX(theta[RightUpperArm])*RotateZ(180));
+	right_upper_arm();//右上臂绘制
+	model_view *= (Translate(0.0, UPPER_ARM_HEIGHT, 0.0) *RotateX(theta[RightLowerArm]));
+	right_lower_arm();//右下臂绘制
+	model_view = mvstack.pop();//恢复躯干变换矩阵
+	mvstack.push(model_view); //保存躯干变换矩阵
+	model_view *= (Translate(TORSO_HEIGHT / 6, 0, 0.0) *RotateX(theta[LeftUpperLeg])*RotateZ(180));
+	left_upper_leg();//左上腿绘制
+	model_view *= (Translate(0.0, UPPER_LEG_HEIGHT, 0.0) *RotateX(theta[LeftLowerLeg]));
+	left_lower_leg();//左下腿绘制
+	model_view = mvstack.pop();//恢复躯干变换矩阵
+	mvstack.push(model_view); //保存躯干变换矩阵
+	model_view *= (Translate(-TORSO_HEIGHT / 6, 0, 0.0) *RotateX(theta[RightUpperLeg])*RotateZ(180));
+	right_upper_leg();//右上腿绘制
+	model_view *= (Translate(0.0, UPPER_LEG_HEIGHT, 0.0) *RotateX(theta[RightLowerLeg]));
+	right_lower_leg();//右下腿绘制
+	model_view = mvstack.pop();//恢复躯干变换矩阵
 }
-//----------------------------------------------------------------------------
+
+
 
 void
 reshape(int width, int height)
@@ -616,44 +641,6 @@ init()
 }
 
 ////////////////////////////////////////////
-void show_robot()
-{
-	glUseProgram(program);
-	glBindVertexArray(vao[0]);
-	model_view = Translate(runX * sin(DegreesToRadians) + runZ, 0, runX * cos(DegreesToRadians))
-		* Translate(0.0, increase + UPPER_LEG_HEIGHT + LOWER_LEG_HEIGHT, 0.0)*RotateY(theta[Torso]);//躯干变换矩阵pAngle*pAngle*
-	torso();//躯干绘制
-	mvstack.push(model_view);//保存躯干变换矩阵
-	model_view *= (Translate(0.0, TORSO_HEIGHT, 0.0) *RotateY(theta[Head]));
-	head();//头部绘制
-	model_view = mvstack.pop();//恢复躯干变换矩阵
-	glBindVertexArray(vao[0]);
-	mvstack.push(model_view); //保存躯干变换矩阵
-							  //乘以上臂的变换矩阵(注意此处最后乘了RotateX，代表改变theta[LeftUpperArm]会改变上臂的旋转角度，以X轴为旋转轴)
-	model_view *= (Translate(0.5*(TORSO_WIDTH + UPPER_ARM_WIDTH), 0.9 * TORSO_HEIGHT, 0.0) *RotateX(theta[LeftUpperArm])*RotateZ(180));
-	left_upper_arm();//左上臂绘制
-	model_view *= (Translate(0.0, UPPER_ARM_HEIGHT, 0.0) *RotateX(theta[LeftLowerArm]));
-	left_lower_arm();//左下臂绘制
-	model_view = mvstack.pop();//恢复躯干变换矩阵
-	mvstack.push(model_view); //保存躯干变换矩阵
-	model_view *= (Translate(-0.5*(TORSO_WIDTH + UPPER_ARM_WIDTH), 0.9 * TORSO_HEIGHT, 0.0) *RotateX(theta[RightUpperArm])*RotateZ(180));
-	right_upper_arm();//右上臂绘制
-	model_view *= (Translate(0.0, UPPER_ARM_HEIGHT, 0.0) *RotateX(theta[RightLowerArm]));
-	right_lower_arm();//右下臂绘制
-	model_view = mvstack.pop();//恢复躯干变换矩阵
-	mvstack.push(model_view); //保存躯干变换矩阵
-	model_view *= (Translate(TORSO_HEIGHT / 6, 0, 0.0) *RotateX(theta[LeftUpperLeg])*RotateZ(180));
-	left_upper_leg();//左上腿绘制
-	model_view *= (Translate(0.0, UPPER_LEG_HEIGHT, 0.0) *RotateX(theta[LeftLowerLeg]));
-	left_lower_leg();//左下腿绘制
-	model_view = mvstack.pop();//恢复躯干变换矩阵
-	mvstack.push(model_view); //保存躯干变换矩阵
-	model_view *= (Translate(-TORSO_HEIGHT / 6, 0, 0.0) *RotateX(theta[RightUpperLeg])*RotateZ(180));
-	right_upper_leg();//右上腿绘制
-	model_view *= (Translate(0.0, UPPER_LEG_HEIGHT, 0.0) *RotateX(theta[RightLowerLeg]));
-	right_lower_leg();//右下腿绘制
-	model_view = mvstack.pop();//恢复躯干变换矩阵
-}
 
 /////////////////////////////////////////////
 void
@@ -681,8 +668,10 @@ display(void)
 	mp_->setCameraMatrix(Camera::modelMatrix, Camera::viewMatrix, Camera::projMatrix);
 	mp_->draw_meshes();//画图形
 	glUseProgram(program);
+
+
 	show_robot();	// 绘制机器人
-	show_robot();
+	//show_robot();
 
 	glutSwapBuffers();
 };
@@ -955,10 +944,10 @@ void judugeCross() {
 	if (runX < -70)
 	{
 		mp_ = skybox(pictrue2);
-		runX = 70;
+		runX = 30;
 		cout << "机器人穿越啦 "<< endl;
 	}
-	else if(runX > 70)
+	else if(runX > 30)
 	{
 		mp_ = skybox(pictrue1);
 		runX = -70;
@@ -966,7 +955,7 @@ void judugeCross() {
 	}
 	else if (runZ < -77)
 	{
-		mp_ = skybox(pictrue3);
+		mp_ = skybox(pictrue4);
 		runZ = 77;
 		cout << "机器人穿越啦 " << endl;
 	}
