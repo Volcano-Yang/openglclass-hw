@@ -28,6 +28,7 @@
     <ClInclude Include="FreeImage.h" />
     <ClInclude Include="mesh.h" />
     <ClInclude Include="Mesh_Painter.h" />
+    <ClInclude Include="Texture_Mapping.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="f_texture.glsl" />

@@ -9,6 +9,8 @@
 #include <cmath>
 #include <GL/glew.h>
 #include <glfw3.h>
+#include <gl/glut.h>
+#include "Texture_Mapping.h"
 using namespace std;
 
 #pragma comment(lib, "glew32.lib")
@@ -67,19 +69,12 @@ float pAngle = 0.0;
 vec3 lightPos(21.92,24.78,10);
 GLuint lightPosID;
 
-// 控制机器人行走的参数
-int runGesture = 1;	// 控制切换行走姿势
-float runX = 0, runY = 0, runZ = 0;	// 控制移动的坐标
-int cameramouse = 0;	// 控制切换第一视角行走模式
-int movetorso = 0;	// 控制切换第一视角行走模式
-int stepSize = 1;	// 控制机器人每一步的步长
-float increase = 1.0;	// 绘制机器人时的位置偏移值
-
 GLuint sflag;	// 用于传入片元着色器，以控制阴影部分不添加漫反射、镜面反射和环境光 
 
 //控制能量
 int energy = 0;
 
+int energy2 = 0;
 
 //天空盒贴图
 string pictrue1[6] = { "skybox/rainforest_bk.tga", "skybox/rainforest_lf.tga","skybox/rainforest_ft.tga", "skybox/rainforest_rt.tga","skybox/rainforest_dn.tga","skybox/rainforest_up.tga" };
@@ -166,7 +161,7 @@ color4 vertex_colors[8] = {
 	color4(0.0, 0.0, 0.0, 1.0),  // 黑色，0
 	color4(1.0, 0.0, 0.0, 1.0),  // 红色，1,
 	color4(1.0, 1.0, 0.0, 1.0),  // 黄色，2
-	color4(0.0, 1.0, 0.0, 1.0),  // 绿色，3
+	color4(0.3, 1.0, 0.3, 1.0),  // 绿色，3
 	color4(0.0, 0.0, 1.0, 1.0),  // 蓝色，4
 	color4(1.0, 0.0, 1.0, 1.0),  // 品红色，5
 	color4(1.0, 1.0, 1.0, 1.0),  // 白色，6
@@ -211,7 +206,19 @@ GLuint       draw_color;
 //----------------------------------------------------------------------------
 
 
-// 给机器人的各个部位设置颜色
+// 控制机器人行走的参数
+int runGesture = 1;	// 控制切换行走姿势
+int runGesture2 = 1;	// 控制切换行走姿势
+float runX = 0, runY = 0, runZ = 0;	// 控制机器人1移动的坐标
+float runX2 = 10, runY2 = 0, runZ2 = 10;	// 控制机器人2移动的坐标
+int cameramouse = 0;	// 控制切换第一视角行走模式
+int movetorso = 0;	// 控制切换第一视角行走模式
+int stepSize = 1;	// 控制机器人1每一步的步长
+int stepSize2 = 1;	// 控制机器人2每一步的步长
+float increase = 1.0;	// 绘制机器人时的位置偏移值
+
+
+// 给机器人1的各个部位设置颜色
 point4 color_head = vertex_colors[6];
 point4 color_torso = vertex_colors[0];
 
@@ -221,8 +228,22 @@ point4 color_lower_arm = vertex_colors[0];
 point4 color_upper_leg = vertex_colors[6];
 point4 color_lower_leg = vertex_colors[0];
 
+point4 color_cube = vertex_colors[2];
 
-// 定义机器人各个部位的大小
+// 给机器人2的各个部位设置颜色
+point4 color_head2 = vertex_colors[6];
+point4 color_torso2 = vertex_colors[4];
+
+point4 color_upper_arm2 = vertex_colors[6];
+point4 color_lower_arm2 = vertex_colors[4];
+
+point4 color_upper_leg2 = vertex_colors[6];
+point4 color_lower_leg2 = vertex_colors[4];
+
+point4 color_cube2 = vertex_colors[2];
+
+
+// 定义机器人1各个部位的大小
 
 float HEAD_HEIGHT = 2.5;
 float HEAD_WIDTH = 2.5;
@@ -242,6 +263,31 @@ float UPPER_LEG_HEIGHT =1;
 float LOWER_LEG_HEIGHT = 2;
 float LOWER_LEG_WIDTH  = 1.5;
 
+float CUBE_HEIGHT = 8;
+float CUBE_WIDTH = 8;
+
+// 定义机器人2各个部位的大小
+
+float HEAD_HEIGHT2 = 2.5*0.6;
+float HEAD_WIDTH2 = 2.5*0.6;
+
+float TORSO_HEIGHT2 = 5.5*0.6;
+float TORSO_WIDTH2 = 4.0*0.6;
+
+float UPPER_ARM_HEIGHT2 = 2.0*0.6;
+float UPPER_ARM_WIDTH2 = 1 * 0.6;
+
+float LOWER_ARM_HEIGHT2 = 1.5*0.6;
+float LOWER_ARM_WIDTH2 = 1 * 0.6;
+
+float UPPER_LEG_WIDTH2 = 1.5*0.6;
+float UPPER_LEG_HEIGHT2 = 1 * 0.6;
+
+float LOWER_LEG_HEIGHT2 = 2 * 0.6;
+float LOWER_LEG_WIDTH2 = 1.5*0.6;
+
+float CUBE_HEIGHT2 = 8 * 0.6;
+float CUBE_WIDTH2 = 8 * 0.6;
 
 
 // 建立机器人部件项索引，以便使用关节角度
@@ -258,9 +304,6 @@ enum {
 	LeftLowerLeg,//9
 	NumJointAngles,//10
 };
-//建立菜单索引
-const int controlcameraon = 11;
-const int controlcameraoff = 12;
 
 // 初始化关节角度
 GLfloat
@@ -277,11 +320,24 @@ theta[NumJointAngles] = {
 	0.0     // LeftLowerLeg
 };
 
+// 初始化关节角度
+GLfloat
+theta2[NumJointAngles] = {
+	0.0,    // Torso
+	0.0,    // Head
+	0.0,    // RightUpperArm
+	0.0,    // RightLowerArm
+	0.0,    // LeftUpperArm
+	0.0,    // LeftLowerArm
+	0.0,  // RightUpperLeg
+	0.0,    // RightLowerLeg
+	0.0,  // LeftUpperLeg
+	0.0     // LeftLowerLeg
+};
+
 GLint angle = Head;
-
-//----------------------------------------------------------------------------
-
 int Index = 0;
+
 
 void
 quad(int a, int b, int c, int d)
@@ -336,17 +392,32 @@ void init_shadowMatrix()
 }
 
 void
-torso()
+cube()
+{
+	init_shadowMatrix();
+	mvstack.push(model_view);// 保存父节点矩阵
+	mat4 instance = (Translate(0.0, 0.5 * CUBE_HEIGHT, 0.0) *
+		Scale(CUBE_WIDTH, CUBE_HEIGHT, CUBE_WIDTH/2));// 本节点局部变换矩阵
+	glUniformMatrix4fv(ModelView, 1, GL_TRUE, model_view * instance);// 父节点矩阵*本节点局部变换矩阵
+	glUniform4fv(draw_color, 1, color_cube);
+	glUniform1i(sflag, 0);
+	glDrawArrays(GL_TRIANGLES, 0, NumVertices);
+	add_robot_shadow();
+	model_view = mvstack.pop();// 恢复父节点矩阵
+}
+
+void
+torso(float w,float h, point4 color)
 {
 	init_shadowMatrix();
 
 	mvstack.push(model_view);// 保存父节点矩阵
 
-	mat4 instance = (Translate(0.0, 0.5 * TORSO_HEIGHT, 0.0) *
-		Scale(TORSO_WIDTH, TORSO_HEIGHT, TORSO_WIDTH / 2));// 本节点局部变换矩阵
+	mat4 instance = (Translate(0.0, 0.5 * h, 0.0) *
+		Scale(w, h, w / 2));// 本节点局部变换矩阵
 
 	glUniformMatrix4fv(ModelView, 1, GL_TRUE, model_view * instance);// 父节点矩阵 * 本节点局部变换矩阵
-	glUniform4fv(draw_color, 1, color_torso);
+	glUniform4fv(draw_color, 1, color);
 
 	glUniform1i(sflag, 0);	// 标记其不为阴影（下同）
 	glDrawArrays(GL_TRIANGLES, 0, NumVertices);
@@ -357,16 +428,16 @@ torso()
 }
 
 void
-head()
+head(float w, float h, point4 color)
 {
 	init_shadowMatrix();
 
 	mvstack.push(model_view);// 保存父节点矩阵
 
-	mat4 instance = (Translate(0.0, 0.5 * HEAD_HEIGHT, 0.0) *
-		Scale(HEAD_WIDTH, HEAD_HEIGHT, HEAD_WIDTH));// 本节点局部变换矩阵
+	mat4 instance = (Translate(0.0, 0.5 * h, 0.0) *
+		Scale(w, h, w));// 本节点局部变换矩阵
 	glUniformMatrix4fv(ModelView, 1, GL_TRUE, model_view * instance);// 父节点矩阵*本节点局部变换矩阵
-	glUniform4fv(draw_color, 1, color_head);
+	glUniform4fv(draw_color, 1, color);
 	glUniform1i(sflag, 0);
 	glDrawArrays(GL_TRIANGLES, 0, NumVertices);
 	add_robot_shadow();
@@ -374,17 +445,17 @@ head()
 }
 
 void
-left_upper_arm()
+left_upper_arm(float w, float h, point4 color)
 {
 	init_shadowMatrix();// 初始化阴影矩阵
 
 	mvstack.push(model_view);//保存父节点矩阵
 
-	mat4 instance = (Translate(0.0, 0.5 * UPPER_ARM_HEIGHT, 0.0) *
-		Scale(UPPER_ARM_WIDTH + 0.3, UPPER_ARM_HEIGHT, UPPER_ARM_WIDTH + 0.3));//本节点局部变换矩阵
+	mat4 instance = (Translate(0.0, 0.5 * h, 0.0) *
+		Scale(w + 0.3, h, w + 0.3));//本节点局部变换矩阵
 
 	glUniformMatrix4fv(ModelView, 1, GL_TRUE, model_view * instance);//父节点矩阵*本节点局部变换矩阵
-	glUniform4fv(draw_color, 1, color_upper_arm);
+	glUniform4fv(draw_color, 1, color);
 	glUniform1i(sflag, 0);
 	glDrawArrays(GL_TRIANGLES, 0, NumVertices);
 
@@ -394,14 +465,14 @@ left_upper_arm()
 }
 
 void
-left_lower_arm()
+left_lower_arm(float w, float h, point4 color)
 {
 	init_shadowMatrix();// 初始化阴影矩阵
 	mvstack.push(model_view);//保存父节点矩阵
-	mat4 instance = (Translate(0.0, 0.5 * LOWER_ARM_HEIGHT, 0.0) *
-		Scale(LOWER_ARM_WIDTH, LOWER_ARM_HEIGHT, LOWER_ARM_WIDTH));//本节点局部变换矩阵
+	mat4 instance = (Translate(0.0, 0.5 * h, 0.0) *
+		Scale(w, h, w));//本节点局部变换矩阵
 	glUniformMatrix4fv(ModelView, 1, GL_TRUE, model_view * instance);//父节点矩阵*本节点局部变换矩阵
-	glUniform4fv(draw_color, 1, color_lower_arm);	// 绑定绘制颜色
+	glUniform4fv(draw_color, 1, color);	// 绑定绘制颜色
 	glUniform1i(sflag, 0);	 // 标记此不是阴影
 	glDrawArrays(GL_TRIANGLES, 0, NumVertices);	// 绘制
 	add_robot_shadow();	// 为这部分添加阴影效果
@@ -409,17 +480,17 @@ left_lower_arm()
 }
 
 void
-right_upper_arm()
+right_upper_arm(float w, float h, point4 color)
 {
 	init_shadowMatrix();// 初始化阴影矩阵
 
 	mvstack.push(model_view);//保存父节点矩阵
 
-	mat4 instance = (Translate(0.0, 0.5 * UPPER_ARM_HEIGHT, 0.0) *
-		Scale(UPPER_ARM_WIDTH + 0.3, UPPER_ARM_HEIGHT, UPPER_ARM_WIDTH + 0.3));//本节点局部变换矩阵
+	mat4 instance = (Translate(0.0, 0.5 * h, 0.0) *
+		Scale(w + 0.3, h, w + 0.3));//本节点局部变换矩阵
 
 	glUniformMatrix4fv(ModelView, 1, GL_TRUE, model_view * instance);//父节点矩阵*本节点局部变换矩阵
-	glUniform4fv(draw_color, 1, color_upper_arm);
+	glUniform4fv(draw_color, 1, color);
 	glUniform1i(sflag, 0);
 	glDrawArrays(GL_TRIANGLES, 0, NumVertices);
 
@@ -429,17 +500,17 @@ right_upper_arm()
 }
 
 void
-right_lower_arm()
+right_lower_arm(float w, float h, point4 color)
 {
 	init_shadowMatrix();// 初始化阴影矩阵
 
 	mvstack.push(model_view);//保存父节点矩阵
 
-	mat4 instance = (Translate(0.0, 0.5 * LOWER_ARM_HEIGHT, 0.0) *
-		Scale(LOWER_ARM_WIDTH, LOWER_ARM_HEIGHT, LOWER_ARM_WIDTH));//本节点局部变换矩阵
+	mat4 instance = (Translate(0.0, 0.5 * h, 0.0) *
+		Scale(w, h, w));//本节点局部变换矩阵
 
 	glUniformMatrix4fv(ModelView, 1, GL_TRUE, model_view * instance);//父节点矩阵*本节点局部变换矩阵
-	glUniform4fv(draw_color, 1, color_lower_arm);
+	glUniform4fv(draw_color, 1, color);
 	glUniform1i(sflag, 0);
 	glDrawArrays(GL_TRIANGLES, 0, NumVertices);
 
@@ -449,14 +520,14 @@ right_lower_arm()
 }
 
 void
-left_upper_leg()
+left_upper_leg(float w, float h, point4 color)
 {
 	init_shadowMatrix();// 初始化阴影矩阵
 	mvstack.push(model_view);//保存父节点矩阵
-	mat4 instance = (Translate(0.0, 0.5 * UPPER_LEG_HEIGHT, 0.0) *
-		Scale(UPPER_LEG_WIDTH + 0.3, UPPER_LEG_HEIGHT, UPPER_LEG_WIDTH + 0.3));//本节点局部变换矩阵
+	mat4 instance = (Translate(0.0, 0.5 * h, 0.0) *
+		Scale(w+ 0.3, h, w + 0.3));//本节点局部变换矩阵
 	glUniformMatrix4fv(ModelView, 1, GL_TRUE, model_view * instance);//父节点矩阵*本节点局部变换矩阵
-	glUniform4fv(draw_color, 1, color_upper_leg);//传入颜色
+	glUniform4fv(draw_color, 1, color);//传入颜色
 	glUniform1i(sflag, 0);
 	glDrawArrays(GL_TRIANGLES, 0, NumVertices);//绘制
 	add_robot_shadow();//添加阴影
@@ -464,14 +535,14 @@ left_upper_leg()
 }
 
 void
-left_lower_leg()
+left_lower_leg(float w, float h, point4 color)
 {
 	init_shadowMatrix();// 初始化阴影矩阵
 	mvstack.push(model_view);//保存父节点矩阵
-	mat4 instance = (Translate(0.0, 0.5 * LOWER_LEG_HEIGHT, 0.0) *
-		Scale(LOWER_LEG_WIDTH, LOWER_LEG_HEIGHT, LOWER_LEG_WIDTH));//本节点局部变换矩阵
+	mat4 instance = (Translate(0.0, 0.5 * h, 0.0) *
+		Scale(w, h, w));//本节点局部变换矩阵
 	glUniformMatrix4fv(ModelView, 1, GL_TRUE, model_view * instance);//父节点矩阵*本节点局部变换矩阵
-	glUniform4fv(draw_color, 1, color_lower_leg);
+	glUniform4fv(draw_color, 1, color);
 	glUniform1i(sflag, 0);
 	glDrawArrays(GL_TRIANGLES, 0, NumVertices);
 	add_robot_shadow();
@@ -479,17 +550,17 @@ left_lower_leg()
 }
 
 void
-right_upper_leg()
+right_upper_leg(float w, float h, point4 color)
 {
 	init_shadowMatrix();// 初始化阴影矩阵
 
 	mvstack.push(model_view);//保存父节点矩阵
 
-	mat4 instance = (Translate(0.0, 0.5 * UPPER_LEG_HEIGHT, 0.0) *
-		Scale(UPPER_LEG_WIDTH + 0.3, UPPER_LEG_HEIGHT, UPPER_LEG_WIDTH + 0.3));//本节点局部变换矩阵
+	mat4 instance = (Translate(0.0, 0.5 * h, 0.0) *
+		Scale(w + 0.3, h, w + 0.3));//本节点局部变换矩阵
 
 	glUniformMatrix4fv(ModelView, 1, GL_TRUE, model_view * instance);//父节点矩阵*本节点局部变换矩阵
-	glUniform4fv(draw_color, 1, color_upper_leg);
+	glUniform4fv(draw_color, 1, color);
 	glUniform1i(sflag, 0);
 	glDrawArrays(GL_TRIANGLES, 0, NumVertices);
 
@@ -499,17 +570,17 @@ right_upper_leg()
 }
 
 void
-right_lower_leg()
+right_lower_leg(float w, float h, point4 color)
 {
 	init_shadowMatrix();// 初始化阴影矩阵
 
 	mvstack.push(model_view);//保存父节点矩阵
 
-	mat4 instance = (Translate(0.0, 0.5 * LOWER_LEG_HEIGHT, 0.0) *
-		Scale(LOWER_LEG_WIDTH, LOWER_LEG_HEIGHT, LOWER_LEG_WIDTH));//本节点局部变换矩阵
+	mat4 instance = (Translate(0.0, 0.5 * h, 0.0) *
+		Scale(w, h, w));//本节点局部变换矩阵
 
 	glUniformMatrix4fv(ModelView, 1, GL_TRUE, model_view * instance);//父节点矩阵*本节点局部变换矩阵
-	glUniform4fv(draw_color, 1, color_lower_leg);
+	glUniform4fv(draw_color, 1, color);
 	glUniform1i(sflag, 0);
 	glDrawArrays(GL_TRIANGLES, 0, NumVertices);
 
@@ -518,42 +589,103 @@ right_lower_leg()
 	model_view = mvstack.pop();//恢复父节点矩阵
 }
 
-void show_robot()
+void bamboo(float x, float y, float z)
 {
 	glUseProgram(program);
 	glBindVertexArray(vao[0]);
-	model_view = Translate(runX * sin(DegreesToRadians) + runZ, 0, runX * cos(DegreesToRadians))
+	model_view = Translate(x,y,z);
+	cube();//躯干绘制
+}
+
+
+void show_robot(float x,float y,float z)
+{
+	glUseProgram(program);
+	glBindVertexArray(vao[0]);
+	model_view = Translate(x * sin(DegreesToRadians) + z, 0, x* cos(DegreesToRadians))
 		* Translate(0.0, increase + UPPER_LEG_HEIGHT + LOWER_LEG_HEIGHT, 0.0)*RotateY(theta[Torso]);//躯干变换矩阵pAngle*pAngle*
-	torso();//躯干绘制
+	torso(TORSO_WIDTH,TORSO_HEIGHT, color_torso);//躯干绘制
+
+
 	mvstack.push(model_view);//保存躯干变换矩阵
 	model_view *= (Translate(0.0, TORSO_HEIGHT, 0.0) *RotateY(theta[Head]));
-	head();//头部绘制
+	head(HEAD_WIDTH, HEAD_HEIGHT, color_head);//头部绘制
 	model_view = mvstack.pop();//恢复躯干变换矩阵
 	glBindVertexArray(vao[0]);
+
 	mvstack.push(model_view); //保存躯干变换矩阵
 							  //乘以上臂的变换矩阵(注意此处最后乘了RotateX，代表改变theta[LeftUpperArm]会改变上臂的旋转角度，以X轴为旋转轴)
 	model_view *= (Translate(0.5*(TORSO_WIDTH + UPPER_ARM_WIDTH), 0.9 * TORSO_HEIGHT, 0.0) *RotateX(theta[LeftUpperArm])*RotateZ(180));
-	left_upper_arm();//左上臂绘制
+	left_upper_arm(UPPER_ARM_WIDTH, UPPER_ARM_HEIGHT, color_upper_arm);//左上臂绘制
 	model_view *= (Translate(0.0, UPPER_ARM_HEIGHT, 0.0) *RotateX(theta[LeftLowerArm]));
-	left_lower_arm();//左下臂绘制
+	left_lower_arm(LOWER_ARM_WIDTH, LOWER_ARM_HEIGHT, color_lower_arm);//左下臂绘制
 	model_view = mvstack.pop();//恢复躯干变换矩阵
+
 	mvstack.push(model_view); //保存躯干变换矩阵
 	model_view *= (Translate(-0.5*(TORSO_WIDTH + UPPER_ARM_WIDTH), 0.9 * TORSO_HEIGHT, 0.0) *RotateX(theta[RightUpperArm])*RotateZ(180));
-	right_upper_arm();//右上臂绘制
+	right_upper_arm(UPPER_ARM_WIDTH, UPPER_ARM_HEIGHT, color_upper_arm);//右上臂绘制
 	model_view *= (Translate(0.0, UPPER_ARM_HEIGHT, 0.0) *RotateX(theta[RightLowerArm]));
-	right_lower_arm();//右下臂绘制
+	right_lower_arm(LOWER_ARM_WIDTH, LOWER_ARM_HEIGHT, color_lower_arm);//右下臂绘制
 	model_view = mvstack.pop();//恢复躯干变换矩阵
+
 	mvstack.push(model_view); //保存躯干变换矩阵
 	model_view *= (Translate(TORSO_HEIGHT / 6, 0, 0.0) *RotateX(theta[LeftUpperLeg])*RotateZ(180));
-	left_upper_leg();//左上腿绘制
+	left_upper_leg(UPPER_LEG_WIDTH, UPPER_LEG_HEIGHT,color_upper_leg);//左上腿绘制
 	model_view *= (Translate(0.0, UPPER_LEG_HEIGHT, 0.0) *RotateX(theta[LeftLowerLeg]));
-	left_lower_leg();//左下腿绘制
+	left_lower_leg(LOWER_LEG_WIDTH,LOWER_LEG_HEIGHT,color_lower_leg);//左下腿绘制
 	model_view = mvstack.pop();//恢复躯干变换矩阵
+
 	mvstack.push(model_view); //保存躯干变换矩阵
 	model_view *= (Translate(-TORSO_HEIGHT / 6, 0, 0.0) *RotateX(theta[RightUpperLeg])*RotateZ(180));
-	right_upper_leg();//右上腿绘制
+	right_upper_leg(UPPER_LEG_WIDTH, UPPER_LEG_HEIGHT, color_upper_leg);//右上腿绘制
 	model_view *= (Translate(0.0, UPPER_LEG_HEIGHT, 0.0) *RotateX(theta[RightLowerLeg]));
-	right_lower_leg();//右下腿绘制
+	right_lower_leg(LOWER_LEG_WIDTH, LOWER_LEG_HEIGHT, color_lower_leg);//右下腿绘制
+	model_view = mvstack.pop();//恢复躯干变换矩阵
+}
+
+
+void show_robot2(float x, float y, float z)
+{
+	glUseProgram(program);
+	glBindVertexArray(vao[0]);
+	model_view = Translate(x * sin(DegreesToRadians) + z, 0, x* cos(DegreesToRadians))
+		* Translate(0.0, increase + UPPER_LEG_HEIGHT2 + LOWER_LEG_HEIGHT2, 0.0)*RotateY(theta2[Torso]);//躯干变换矩阵pAngle*pAngle*
+	torso(TORSO_WIDTH2, TORSO_HEIGHT2, color_torso2);//躯干绘制
+
+
+	mvstack.push(model_view);//保存躯干变换矩阵
+	model_view *= (Translate(0.0, TORSO_HEIGHT2, 0.0) *RotateY(theta2[Head]));
+	head(HEAD_WIDTH2, HEAD_HEIGHT2, color_head2);//头部绘制
+	model_view = mvstack.pop();//恢复躯干变换矩阵
+	glBindVertexArray(vao[0]);
+
+	mvstack.push(model_view); //保存躯干变换矩阵
+							  //乘以上臂的变换矩阵(注意此处最后乘了RotateX，代表改变theta[LeftUpperArm]会改变上臂的旋转角度，以X轴为旋转轴)
+	model_view *= (Translate(0.5*(TORSO_WIDTH2 + UPPER_ARM_WIDTH2), 0.9 * TORSO_HEIGHT2, 0.0) *RotateX(theta2[LeftUpperArm])*RotateZ(180));
+	left_upper_arm(UPPER_ARM_WIDTH2, UPPER_ARM_HEIGHT2, color_upper_arm2);//左上臂绘制
+	model_view *= (Translate(0.0, UPPER_ARM_HEIGHT2, 0.0) *RotateX(theta2[LeftLowerArm]));
+	left_lower_arm(LOWER_ARM_WIDTH2, LOWER_ARM_HEIGHT2, color_lower_arm2);//左下臂绘制
+	model_view = mvstack.pop();//恢复躯干变换矩阵
+
+	mvstack.push(model_view); //保存躯干变换矩阵
+	model_view *= (Translate(-0.5*(TORSO_WIDTH2 + UPPER_ARM_WIDTH2), 0.9 * TORSO_HEIGHT2, 0.0) *RotateX(theta2[RightUpperArm])*RotateZ(180));
+	right_upper_arm(UPPER_ARM_WIDTH2, UPPER_ARM_HEIGHT2, color_upper_arm2);//右上臂绘制
+	model_view *= (Translate(0.0, UPPER_ARM_HEIGHT2, 0.0) *RotateX(theta2[RightLowerArm]));
+	right_lower_arm(LOWER_ARM_WIDTH2, LOWER_ARM_HEIGHT2, color_lower_arm2);//右下臂绘制
+	model_view = mvstack.pop();//恢复躯干变换矩阵
+
+	mvstack.push(model_view); //保存躯干变换矩阵
+	model_view *= (Translate(TORSO_HEIGHT2 / 6, 0, 0.0) *RotateX(theta2[LeftUpperLeg])*RotateZ(180));
+	left_upper_leg(UPPER_LEG_WIDTH2, UPPER_LEG_HEIGHT2, color_upper_leg2);//左上腿绘制
+	model_view *= (Translate(0.0, UPPER_LEG_HEIGHT2, 0.0) *RotateX(theta2[LeftLowerLeg]));
+	left_lower_leg(LOWER_LEG_WIDTH2, LOWER_LEG_HEIGHT2, color_lower_leg2);//左下腿绘制
+	model_view = mvstack.pop();//恢复躯干变换矩阵
+
+	mvstack.push(model_view); //保存躯干变换矩阵
+	model_view *= (Translate(-TORSO_HEIGHT2 / 6, 0, 0.0) *RotateX(theta2[RightUpperLeg])*RotateZ(180));
+	right_upper_leg(UPPER_LEG_WIDTH2, UPPER_LEG_HEIGHT2, color_upper_leg2);//右上腿绘制
+	model_view *= (Translate(0.0, UPPER_LEG_HEIGHT2, 0.0) *RotateX(theta2[RightLowerLeg]));
+	right_lower_leg(LOWER_LEG_WIDTH2, LOWER_LEG_HEIGHT2, color_lower_leg2);//右下腿绘制
 	model_view = mvstack.pop();//恢复躯干变换矩阵
 }
 
@@ -669,10 +801,9 @@ display(void)
 	mp_->draw_meshes();//画图形
 	glUseProgram(program);
 
-
-	show_robot();	// 绘制机器人
-	//show_robot();
-
+	//bamboo(20,0,-10);
+	show_robot(runX, runY, runZ);	// 绘制机器人
+	show_robot2(runX2, runY2, runZ2);	// 绘制机器人
 	glutSwapBuffers();
 };
 
@@ -835,6 +966,58 @@ void robotChangeGesture() {
 	}
 }
 
+void robotChangeGesture2(int a) {
+	cout << "当前runGesture2：" << runGesture2 << endl;
+	if (a == 1) {
+		theta2[LeftUpperArm] = 40;
+		theta2[LeftLowerArm] = 115;
+		theta2[RightUpperArm] = 340;
+		theta2[RightLowerArm] = 105;
+		theta2[RightUpperLeg] = 20;
+		theta2[RightLowerLeg] = 265;
+		theta2[LeftUpperLeg] = 340;
+		theta2[LeftLowerLeg] = 0.0;
+	}
+	else if (a == 2)
+	{
+		theta2[LeftUpperArm] = 340;
+		theta2[LeftLowerArm] = 105;
+		theta2[RightUpperArm] = 40;
+		theta2[RightLowerArm] = 115;
+		theta2[RightUpperLeg] = 340;
+		theta2[RightLowerLeg] = 0;
+		theta2[LeftUpperLeg] = 20;
+		theta2[LeftLowerLeg] = 265;
+		runGesture2 = 1;
+	}
+}
+
+void robotChangeGesture2() {
+	cout << "当前runGesture2：" << runGesture2 << endl;
+	if (runGesture2 == 1) {
+		theta2[LeftUpperArm] = 40;
+		theta2[LeftLowerArm] = 115;
+		theta2[RightUpperArm] = 340;
+		theta2[RightLowerArm] = 105;
+		theta2[RightUpperLeg] = 20;
+		theta2[RightLowerLeg] = 265;
+		theta2[LeftUpperLeg] = 340;
+		theta2[LeftLowerLeg] = 0.0;
+		runGesture2 = 0;
+	}
+	else {
+		theta2[LeftUpperArm] = 340;
+		theta2[LeftLowerArm] = 105;
+		theta2[RightUpperArm] = 40;
+		theta2[RightLowerArm] = 115;
+		theta2[RightUpperLeg] = 340;
+		theta2[RightLowerLeg] = 0;
+		theta2[LeftUpperLeg] = 20;
+		theta2[LeftLowerLeg] = 265;
+		runGesture2 = 1;
+	}
+}
+
 void changeRobotSize(float x) {
 	HEAD_HEIGHT *= x;
 	HEAD_WIDTH *= x;
@@ -858,6 +1041,19 @@ void changeRobotSize(float x) {
 }
 
 //奔跑增加能量
+void energymaneger2() {
+	energy2 += 5;
+
+	if (energy2 >= 500)
+	{
+		stepSize2 += 1;
+		energy2 = 0;
+	}
+		
+	cout << "当前能量：" << energy2 << endl;
+
+}
+
 void energymaneger() {
 	energy += 5;
 
@@ -867,6 +1063,7 @@ void energymaneger() {
 	cout << "当前能量：" << energy << endl;
 
 }
+
 
 
 Mesh_Painter* skybox(string picture[])
@@ -965,6 +1162,33 @@ void judugeCross() {
 		runZ = -77;
 		cout << "机器人穿越啦 " << endl;
 	}
+
+
+
+	if (runX2 < -70)
+	{
+		mp_ = skybox(pictrue2);
+		runX2 = 30;
+		cout << "机器人穿越啦 " << endl;
+	}
+	else if (runX2 > 30)
+	{
+		mp_ = skybox(pictrue1);
+		runX2 = -70;
+		cout << "机器人穿越啦 " << endl;
+	}
+	else if (runZ2 < -77)
+	{
+		mp_ = skybox(pictrue4);
+		runZ2 = 77;
+		cout << "机器人穿越啦 " << endl;
+	}
+	else if (runZ2 > 77)
+	{
+		mp_ = skybox(pictrue4);
+		runZ2 = -77;
+		cout << "机器人穿越啦 " << endl;
+	}
 }
 
 
@@ -982,20 +1206,20 @@ void keyboard(unsigned char key, int mousex, int mousey)
 	switch (key)
 	{
 		// 控制相机变换
-	case 'd':
+	case 'h':
 		eye += normalize(cross(at, up)) * cameraSpeed;
 		cout << "当前相机的参数： eye:" << eye << " fov:" << fov << endl;
 		break;
-	case 'a':
+	case 'f':
 		eye -= normalize(cross(at, up)) * cameraSpeed;
 		cout << "当前相机的参数： eye:" << eye << " fov:" << fov << endl;
 		break;
-	case 'w': 
+	case 't': 
 		tAngle += 5;
 		eye += at*cameraSpeed;
 		cout << "当前相机的参数： eye:" << eye << " fov:" << fov << endl;
 		break;
-	case 's':
+	case 'g':
 		eye -= at*cameraSpeed;
 		cout << "当前相机的参数： eye:" << eye << " fov:" << fov << endl;
 		break;
@@ -1014,8 +1238,46 @@ void keyboard(unsigned char key, int mousex, int mousey)
 		cout << "当前相机的参数： eye:" << eye << " fov:" << fov << endl;
 		break;
 
+		// 控制机器人2移动
+	case 'j':
+		robotChangeGesture2();	// 切换姿势
+		runZ2 -= stepSize2;	// 走出一步，步长为stepSize
+		theta2[Torso] = 180.0 + 90.0;// 机器人身体转向前进的方向
+		energymaneger2();
+		judugeCross();
+		cout << "机器人当前位置：（" << runX2 << " , " << runY2 << " , " << runZ2 << " )" << endl;
+		break;
+
+	case 'l':	// 右移
+		robotChangeGesture2();
+		runZ2 += stepSize;
+		theta2[Torso] = 180.0 - 90.0;
+		energymaneger2();
+		judugeCross();
+		cout << "机器人当前位置：（" << runX2 << " , " << runY2 << " , " << runZ2 << " )" << endl;
+		break;
+
+	case 'i':	// 前进
+		robotChangeGesture2();
+		runX2 -= stepSize;
+		theta2[Torso] = 180.0;
+		energymaneger2();
+		judugeCross();
+		cout << "机器人当前位置：（" << runX2 << " , " << runY2 << " , " << runZ2 << " )" << endl;
+		break;
+
+	case 'k':	// 后退
+		robotChangeGesture2();
+		runX2 += stepSize;
+		theta2[Torso] = 0;
+		energymaneger2();
+		judugeCross();
+		cout << "机器人当前位置：（" << runX2 << " , " << runY2 << " , " << runZ2 << " )" << endl;
+		break;
+
+
 		// 控制机器人移动
-	case 'j':// 左移
+	case 'a':// 左移
 		robotChangeGesture();	// 切换姿势
 		runZ -= stepSize;	// 走出一步，步长为stepSize
 		theta[Torso] = 180.0 + 90.0;// 机器人身体转向前进的方向
@@ -1023,7 +1285,7 @@ void keyboard(unsigned char key, int mousex, int mousey)
 		judugeCross();
 		cout << "机器人当前位置：（"<<runX<<" , "<<runY<<" , "<<runZ <<" )"<< endl;
 		break;
-	case 'l':	// 右移
+	case 'd':	// 右移
 		robotChangeGesture();
 		runZ += stepSize;
 		theta[Torso] = 180.0 - 90.0;
@@ -1031,7 +1293,7 @@ void keyboard(unsigned char key, int mousex, int mousey)
 		judugeCross();
 		cout << "机器人当前位置：（" << runX << " , " << runY << " , " << runZ << " )" << endl;
 		break;
-	case 'i':	// 前进
+	case 'w':	// 前进
 		robotChangeGesture();
 		runX -= stepSize;
 		theta[Torso] = 180.0;
@@ -1039,7 +1301,7 @@ void keyboard(unsigned char key, int mousex, int mousey)
 		judugeCross();
 		cout << "机器人当前位置：（" << runX << " , " << runY << " , " << runZ << " )" << endl;
 		break;
-	case 'k':	// 后退
+	case 's':	// 后退
 		robotChangeGesture();
 		runX += stepSize;
 		theta[Torso] = 0; 
@@ -1051,11 +1313,13 @@ void keyboard(unsigned char key, int mousex, int mousey)
 		//改变机器人的大小
 	case '7':
 		robotChangeGesture(1);
+		robotChangeGesture2(1);
 		cout << "机器人姿势改变" << endl;
 		break;
 
 	case '8':
 		robotChangeGesture(2);
+		robotChangeGesture2(2);
 		cout << "机器人姿势改变" << endl;
 		break;
 
@@ -1097,22 +1361,8 @@ void keyboard(unsigned char key, int mousex, int mousey)
 		cout << "天空图改变" << endl;
 		break;
 
-		// 机器人姿势重置
-	case ' ':
-		theta[Torso] = 0;
-		theta[Head] = 0;
-		theta[LeftUpperArm] = 0;
-		theta[LeftLowerArm] = 0;
-		theta[RightUpperArm] = 0;
-		theta[RightLowerArm] = 0;
-		theta[RightUpperLeg] = 0;
-		theta[RightLowerLeg] = 0;
-		theta[LeftUpperLeg] = 0;
-		theta[LeftLowerLeg] = 0;
-		break;
-
 		// 所有信息重置
-	case 'r':
+	case ' ':
 		// camera
 		pAngle = 0.0;
 

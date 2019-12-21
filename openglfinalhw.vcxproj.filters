@@ -38,6 +38,9 @@
     <ClInclude Include="FreeImage.h">
       <Filter>头文件</Filter>
     </ClInclude>
+    <ClInclude Include="Texture_Mapping.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="f_texture.glsl">
