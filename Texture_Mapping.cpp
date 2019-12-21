@@ -11,6 +11,7 @@
 #include <glfw3.h>
 #include <gl/glut.h>
 #include "Texture_Mapping.h"
+#include <windows.h>
 using namespace std;
 
 #pragma comment(lib, "glew32.lib")
@@ -217,7 +218,9 @@ int stepSize = 1;	// 控制机器人1每一步的步长
 int stepSize2 = 4;	// 控制机器人2每一步的步长
 float increase = 1.0;	// 绘制机器人时的位置偏移值
 
-float L = 1;
+float L = 0.2;
+int endtime = 2;
+int start_time = 0;
 
 
 // 给机器人1的各个部位设置颜色
@@ -903,7 +906,7 @@ void mouseControllight(int x, int y)
 		lightPos[1] = 1;
 	glutPostRedisplay();
 
-	cout << "当前光源的位置：" << lightPos << endl;
+	//cout << "当前光源的位置：" << lightPos << endl;
 }
 
 //----------------------------------------------------------------------------
@@ -917,7 +920,7 @@ idle(void)
 // 控制机器人姿势的函数 设置两种姿势切换
 
 void robotChangeGesture(int a) {
-	cout << "当前runGesture：" << runGesture << endl;
+	//cout << "当前runGesture：" << runGesture << endl;
 	if (a == 1) {
 		theta[LeftUpperArm] = 40;
 		theta[LeftLowerArm] = 115;
@@ -943,7 +946,7 @@ void robotChangeGesture(int a) {
 }
 
 void robotChangeGesture() {
-	cout << "当前runGesture：" << runGesture << endl;
+	//cout << "当前runGesture：" << runGesture << endl;
 	if (runGesture == 1) {
 		theta[LeftUpperArm] = 40;
 		theta[LeftLowerArm] = 115;
@@ -969,7 +972,7 @@ void robotChangeGesture() {
 }
 
 void robotChangeGesture2(int a) {
-	cout << "当前runGesture2：" << runGesture2 << endl;
+	//cout << "当前runGesture2：" << runGesture2 << endl;
 	if (a == 1) {
 		theta2[LeftUpperArm] = 40;
 		theta2[LeftLowerArm] = 115;
@@ -995,7 +998,7 @@ void robotChangeGesture2(int a) {
 }
 
 void robotChangeGesture2() {
-	cout << "当前runGesture2：" << runGesture2 << endl;
+	//cout << "当前runGesture2：" << runGesture2 << endl;
 	if (runGesture2 == 1) {
 		theta2[LeftUpperArm] = 40;
 		theta2[LeftLowerArm] = 115;
@@ -1043,25 +1046,151 @@ void changeRobotSize(float x) {
 }
 
 void changeRobotSize2(float x) {
-	HEAD_HEIGHT2 = x;
-	HEAD_WIDTH2 = x;
+	if (x==1)
+	{
+		HEAD_HEIGHT2 = 1;
+		HEAD_WIDTH2 = 1;
+
+		TORSO_HEIGHT2 = 2.5;
+		TORSO_WIDTH2 = 2.6;
+
+		UPPER_ARM_HEIGHT2 = 0.5;
+		UPPER_ARM_WIDTH2 = 0.5;
+
+		LOWER_ARM_HEIGHT2 = 0.5;
+		LOWER_ARM_WIDTH2 = 0.5;
+
+		UPPER_LEG_WIDTH2 = 0.5;
+		UPPER_LEG_HEIGHT2 = 0.5;
+
+		LOWER_LEG_HEIGHT2 = 0.5;
+		LOWER_LEG_WIDTH2 = 0.5;
+		//Sleep(2000);
+		float runX = 10, runY = 0, runZ = -6;	// 控制机器人1移动的坐标
+		float runX2 = 10, runY2 = 0, runZ2 = 6;	// 控制机器人2移动的坐标
+		stepSize2 += 3;
+	}
 	
-	TORSO_HEIGHT2 = x;
-	TORSO_WIDTH2 = x;
+	if (0)
+	{
+		HEAD_HEIGHT2 = 0;
+		HEAD_WIDTH2 = 0;
 
-	UPPER_ARM_HEIGHT2 = x;
-	UPPER_ARM_WIDTH2 = x;
+		TORSO_HEIGHT2 = 0;
+		TORSO_WIDTH2 = 0;
 
-	LOWER_ARM_HEIGHT2 = x;
-	LOWER_ARM_WIDTH2 = x;
+		UPPER_ARM_HEIGHT2 = 0;
+		UPPER_ARM_WIDTH2 = 0;
 
-	UPPER_LEG_WIDTH2 = x;
-	UPPER_LEG_HEIGHT2 = x;
+		LOWER_ARM_HEIGHT2 = 0;
+		LOWER_ARM_WIDTH2 = 0;
 
-	LOWER_LEG_HEIGHT2 = x;
-	LOWER_LEG_WIDTH2 = x;
+		UPPER_LEG_WIDTH2 =0;
+		UPPER_LEG_HEIGHT2 = 0;
+
+		LOWER_LEG_HEIGHT2 = 0;
+		LOWER_LEG_WIDTH2 = 0;
+	}
 
 }
+
+void reset()
+{
+	cout << "游戏重新开始！" << endl;
+	// camera
+	pAngle = 0.0;
+
+	// perspective
+	fov = 100.0;
+	aspect = 1.0;
+	zN = 0.1;
+	zF = 100.0;
+	lightPos = vec3(5, 5, 10);
+	rad = 50.0;
+	tAngle = 25.0;
+	pAngle = 0.0;
+
+	runX = 10;
+	runZ = -6;
+	runX2 = 10;
+	runZ2 = 6;
+
+
+	// 机器人姿势
+	theta[Torso] = 0;
+	theta[Head] = 0;
+	theta[LeftUpperArm] = 0;
+	theta[LeftLowerArm] = 0;
+	theta[RightUpperArm] = 0;
+	theta[RightLowerArm] = 0;
+	theta[RightUpperLeg] = 0;
+	theta[RightLowerLeg] = 0;
+	theta[LeftUpperLeg] = 0;
+	theta[LeftLowerLeg] = 0;
+
+	theta2[Torso] = 0;
+	theta2[Head] = 0;
+	theta2[LeftUpperArm] = 0;
+	theta2[LeftLowerArm] = 0;
+	theta2[RightUpperArm] = 0;
+	theta2[RightLowerArm] = 0;
+	theta2[RightUpperLeg] = 0;
+	theta2[RightLowerLeg] = 0;
+	theta2[LeftUpperLeg] = 0;
+	theta2[LeftLowerLeg] = 0;
+
+	HEAD_HEIGHT = 2.5;
+	HEAD_WIDTH = 2.5;
+
+	TORSO_HEIGHT = 5.5;
+	TORSO_WIDTH = 4.0;
+
+	UPPER_ARM_HEIGHT = 2.0;
+	UPPER_ARM_WIDTH = 1;
+
+	LOWER_ARM_HEIGHT = 1.5;
+	LOWER_ARM_WIDTH = 1;
+
+	UPPER_LEG_WIDTH = 1.5;
+	UPPER_LEG_HEIGHT = 1;
+
+	LOWER_LEG_HEIGHT = 2;
+	LOWER_LEG_WIDTH = 1.5;
+
+	CUBE_HEIGHT = 8;
+	CUBE_WIDTH = 8;
+
+	// 定义机器人2各个部位的大小
+
+	HEAD_HEIGHT2 = 2.5*0.5;
+	HEAD_WIDTH2 = 2.5*0.5;
+
+	TORSO_HEIGHT2 = 5.5*0.5;
+	TORSO_WIDTH2 = 4.0*0.5;
+
+	UPPER_ARM_HEIGHT2 = 2.0*0.5;
+	UPPER_ARM_WIDTH2 = 1 * 0.5;
+
+	LOWER_ARM_HEIGHT2 = 1.5*0.5;
+	LOWER_ARM_WIDTH2 = 1 * 0.5;
+
+	UPPER_LEG_WIDTH2 = 1.5*0.5;
+	UPPER_LEG_HEIGHT2 = 1 * 0.5;
+
+	LOWER_LEG_HEIGHT2 = 2 * 0.5;
+	LOWER_LEG_WIDTH2 = 1.5*0.5;
+
+	CUBE_HEIGHT2 = 8 * 0.5;
+	CUBE_WIDTH2 = 8 * 0.5;
+
+	stepSize2 = 4;
+	endtime = 2;
+	start_time = 0;
+	L = 1;
+
+
+}
+
 
 //奔跑增加能量
 void energymaneger2() {
@@ -1073,23 +1202,64 @@ void energymaneger2() {
 		energy2 = 0;
 	}
 		
-	cout << "当前能量：" << energy2 << endl;
+	//cout << "当前能量：" << energy2 << endl;
 
 }
 
 void energymaneger() {
 	energy += 5;
+	start_time += 2;
 
 	if (energy >= 500)
 	{
 		changeRobotSize(1.5);
 		L *= 1.5;
 	}
-		
 
-	cout << "当前能量：" << energy << endl;
+	if (start_time>600)
+	{
+		cout << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" << endl;
+		cout << "小布点赢了" << endl;
+		cout << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" << endl;
+		reset();
+	}
+
+	if (start_time==100)
+	{
+		cout << "剩余时间：500times" << endl;
+	}
+
+	else if (start_time == 200)
+	{
+		cout << "剩余时间：400times" << endl;
+	}
+
+	else if (start_time == 300)
+	{
+		cout << "剩余时间：300times" << endl;
+	}
+
+	else if (start_time == 400)
+	{
+		cout << "剩余时间：200times" << endl;
+	}
+	else if (start_time == 500)
+	{
+		cout << "剩余时间：100times" << endl;
+	}
+	else if (start_time == 550)
+	{
+		cout << "剩余时间：50times" << endl;
+	}
+	else
+	{
+
+	}
+		
+	//cout << "当前能量：" << energy << endl;
 
 }
+
 
 
 
@@ -1169,25 +1339,25 @@ void judugeCross() {
 	{
 		mp_ = skybox(pictrue2);
 		runX = 30;
-		cout << "机器人穿越啦 "<< endl;
+		//cout << "机器人穿越啦 "<< endl;
 	}
 	else if(runX > 30)
 	{
 		mp_ = skybox(pictrue1);
 		runX = -70;
-		cout << "机器人穿越啦 " << endl;
+		//cout << "机器人穿越啦 " << endl;
 	}
 	else if (runZ < -77)
 	{
 		mp_ = skybox(pictrue3);
 		runZ = 77;
-		cout << "机器人穿越啦 " << endl;
+		//cout << "机器人穿越啦 " << endl;
 	}
 	else if (runZ > 77)
 	{
 		mp_ = skybox(pictrue4);
 		runZ = -77;
-		cout << "机器人穿越啦 " << endl;
+		//cout << "机器人穿越啦 " << endl;
 	}
 
 
@@ -1196,30 +1366,43 @@ void judugeCross() {
 	{
 		mp_ = skybox(pictrue2);
 		runX2 = 30;
-		cout << "机器人穿越啦 " << endl;
+		//cout << "机器人穿越啦 " << endl;
 	}
 	else if (runX2 > 30)
 	{
 		mp_ = skybox(pictrue1);
 		runX2 = -70;
-		cout << "机器人穿越啦 " << endl;
+		//cout << "机器人穿越啦 " << endl;
 	}
 	else if (runZ2 < -77)
 	{
 		mp_ = skybox(pictrue3);
 		runZ2 = 77;
-		cout << "机器人穿越啦 " << endl;
+		//cout << "机器人穿越啦 " << endl;
 	}
 	else if (runZ2 > 77)
 	{
 		mp_ = skybox(pictrue4);
 		runZ2 = -77;
-		cout << "机器人穿越啦 " << endl;
+		//cout << "机器人穿越啦 " << endl;
 	}
 
 	if ((runX-L)<=runX2<=(runX+L)&&(runZ - L) <= runZ2 <= (runZ + L))
 	{
-		changeRobotSize2(0.5);
+		if (endtime==2)
+		{
+			changeRobotSize2(1);
+			endtime = 1;
+		}
+		else if (endtime == 1)
+		{
+			cout << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" << endl;
+			cout << "巨无霸赢了" << endl;
+			cout << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" << endl;
+			changeRobotSize2(0);
+			//Sleep(2000);
+			reset();
+		}
 	}
 }
 
@@ -1240,34 +1423,34 @@ void keyboard(unsigned char key, int mousex, int mousey)
 		// 控制相机变换
 	case 'h':
 		eye += normalize(cross(at, up)) * cameraSpeed;
-		cout << "当前相机的参数： eye:" << eye << " fov:" << fov << endl;
+		//cout << "当前相机的参数： eye:" << eye << " fov:" << fov << endl;
 		break;
 	case 'f':
 		eye -= normalize(cross(at, up)) * cameraSpeed;
-		cout << "当前相机的参数： eye:" << eye << " fov:" << fov << endl;
+		//cout << "当前相机的参数： eye:" << eye << " fov:" << fov << endl;
 		break;
 	case 't': 
 		tAngle += 5;
 		eye += at*cameraSpeed;
-		cout << "当前相机的参数： eye:" << eye << " fov:" << fov << endl;
+		//cout << "当前相机的参数： eye:" << eye << " fov:" << fov << endl;
 		break;
 	case 'g':
 		eye -= at*cameraSpeed;
-		cout << "当前相机的参数： eye:" << eye << " fov:" << fov << endl;
+		//cout << "当前相机的参数： eye:" << eye << " fov:" << fov << endl;
 		break;
 	case 'z':
 		eye.y += cameraSpeed;
-		cout << "当前相机的参数： eye:" << eye << " fov:" << fov << endl;
+		//cout << "当前相机的参数： eye:" << eye << " fov:" << fov << endl;
 		break;
 	case 'x':
 		eye.y -= cameraSpeed;
-		cout << "当前相机的参数： eye:" << eye << " fov:" << fov << endl;
+		//cout << "当前相机的参数： eye:" << eye << " fov:" << fov << endl;
 		break;
 	case 'v': fov += 5;
-		cout << "当前相机的参数： eye:" << eye << " fov:" << fov << endl;
+		//cout << "当前相机的参数： eye:" << eye << " fov:" << fov << endl;
 		break;
 	case 'c': fov -= 5;
-		cout << "当前相机的参数： eye:" << eye << " fov:" << fov << endl;
+		//cout << "当前相机的参数： eye:" << eye << " fov:" << fov << endl;
 		break;
 
 		// 控制机器人2移动
@@ -1277,7 +1460,7 @@ void keyboard(unsigned char key, int mousex, int mousey)
 		theta2[Torso] = 180.0 + 90.0;// 机器人身体转向前进的方向
 		energymaneger2();
 		judugeCross();
-		cout << "机器人当前位置：（" << runX2 << " , " << runY2 << " , " << runZ2 << " )" << endl;
+		//cout << "机器人当前位置：（" << runX2 << " , " << runY2 << " , " << runZ2 << " )" << endl;
 		break;
 
 	case 'l':	// 右移
@@ -1286,7 +1469,7 @@ void keyboard(unsigned char key, int mousex, int mousey)
 		theta2[Torso] = 180.0 - 90.0;
 		energymaneger2();
 		judugeCross();
-		cout << "机器人当前位置：（" << runX2 << " , " << runY2 << " , " << runZ2 << " )" << endl;
+		//cout << "机器人当前位置：（" << runX2 << " , " << runY2 << " , " << runZ2 << " )" << endl;
 		break;
 
 	case 'i':	// 前进
@@ -1295,7 +1478,7 @@ void keyboard(unsigned char key, int mousex, int mousey)
 		theta2[Torso] = 180.0;
 		energymaneger2();
 		judugeCross();
-		cout << "机器人当前位置：（" << runX2 << " , " << runY2 << " , " << runZ2 << " )" << endl;
+		//cout << "机器人当前位置：（" << runX2 << " , " << runY2 << " , " << runZ2 << " )" << endl;
 		break;
 
 	case 'k':	// 后退
@@ -1304,7 +1487,7 @@ void keyboard(unsigned char key, int mousex, int mousey)
 		theta2[Torso] = 0;
 		energymaneger2();
 		judugeCross();
-		cout << "机器人当前位置：（" << runX2 << " , " << runY2 << " , " << runZ2 << " )" << endl;
+		//cout << "机器人当前位置：（" << runX2 << " , " << runY2 << " , " << runZ2 << " )" << endl;
 		break;
 
 
@@ -1315,7 +1498,7 @@ void keyboard(unsigned char key, int mousex, int mousey)
 		theta[Torso] = 180.0 + 90.0;// 机器人身体转向前进的方向
 		energymaneger();
 		judugeCross();
-		cout << "机器人当前位置：（"<<runX<<" , "<<runY<<" , "<<runZ <<" )"<< endl;
+		//cout << "机器人当前位置：（"<<runX<<" , "<<runY<<" , "<<runZ <<" )"<< endl;
 		break;
 	case 'd':	// 右移
 		robotChangeGesture();
@@ -1323,7 +1506,7 @@ void keyboard(unsigned char key, int mousex, int mousey)
 		theta[Torso] = 180.0 - 90.0;
 		energymaneger();
 		judugeCross();
-		cout << "机器人当前位置：（" << runX << " , " << runY << " , " << runZ << " )" << endl;
+		//cout << "机器人当前位置：（" << runX << " , " << runY << " , " << runZ << " )" << endl;
 		break;
 	case 'w':	// 前进
 		robotChangeGesture();
@@ -1331,7 +1514,7 @@ void keyboard(unsigned char key, int mousex, int mousey)
 		theta[Torso] = 180.0;
 		energymaneger();
 		judugeCross();
-		cout << "机器人当前位置：（" << runX << " , " << runY << " , " << runZ << " )" << endl;
+		//cout << "机器人当前位置：（" << runX << " , " << runY << " , " << runZ << " )" << endl;
 		break;
 	case 's':	// 后退
 		robotChangeGesture();
@@ -1339,103 +1522,63 @@ void keyboard(unsigned char key, int mousex, int mousey)
 		theta[Torso] = 0; 
 		energymaneger();
 		judugeCross();
-		cout << "机器人当前位置：（" << runX << " , " << runY << " , " << runZ << " )" << endl;
+		//cout << "机器人当前位置：（" << runX << " , " << runY << " , " << runZ << " )" << endl;
 		break;
 
 		//改变机器人的大小
 	case '7':
 		robotChangeGesture(1);
 		robotChangeGesture2(1);
-		cout << "机器人姿势改变" << endl;
+		//cout << "机器人姿势改变" << endl;
 		break;
 
 	case '8':
 		robotChangeGesture(2);
 		robotChangeGesture2(2);
-		cout << "机器人姿势改变" << endl;
+		//cout << "机器人姿势改变" << endl;
 		break;
 
 
 	//改变机器人的大小
 	case '=':	
 		changeRobotSize(1.5);
-		cout << "机器人变大了" << endl;
+		//cout << "机器人变大了" << endl;
 		break;
 
 	case '-':	
 		changeRobotSize(0.8);
-		cout << "机器人变小了" << endl;
+		//cout << "机器人变小了" << endl;
 		break;
 
 		//改变天空图
 	case '1':
 		mp_ = skybox(pictrue1);
-		cout << "天空图改变" << endl;
+		//cout << "天空图改变" << endl;
 		break;
 	case '2':
 		mp_ = skybox(pictrue2);
-		cout << "天空图改变" << endl;
+		//cout << "天空图改变" << endl;
 		break;
 	case '3':
 		mp_ = skybox(pictrue3);
-		cout << "天空图改变" << endl;
+		//cout << "天空图改变" << endl;
 		break;
 	case '4':
 		mp_ = skybox(pictrue4);
-		cout << "天空图改变" << endl;
+		//cout << "天空图改变" << endl;
 		break;
 	case '5':
 		mp_ = skybox(pictrue5);
-		cout << "天空图改变" << endl;
+		//cout << "天空图改变" << endl;
 		break;
 	case '6':
 		mp_ = skybox(pictrue6);
-		cout << "天空图改变" << endl;
+		//cout << "天空图改变" << endl;
 		break;
 
 		// 所有信息重置
 	case ' ':
-		// camera
-		pAngle = 0.0;
-
-		// perspective
-		fov = 100.0;
-		aspect = 1.0;
-		zN = 0.1;
-		zF = 100.0;
-		lightPos = vec3(5, 5, 10);
-		rad = 50.0;
-		tAngle = 25.0;
-		pAngle = 0.0;
-
-		runX = 10;
-		runZ = -6;
-		runX2 = 10;
-		runZ2 = 6;
-	
-
-		// 机器人姿势
-		theta[Torso] = 0;
-		theta[Head] = 0;
-		theta[LeftUpperArm] = 0;
-		theta[LeftLowerArm] = 0;
-		theta[RightUpperArm] = 0;
-		theta[RightLowerArm] = 0;
-		theta[RightUpperLeg] = 0;
-		theta[RightLowerLeg] = 0;
-		theta[LeftUpperLeg] = 0;
-		theta[LeftLowerLeg] = 0;
-
-		theta2[Torso] = 0;
-		theta2[Head] = 0;
-		theta2[LeftUpperArm] = 0;
-		theta2[LeftLowerArm] = 0;
-		theta2[RightUpperArm] = 0;
-		theta2[RightLowerArm] = 0;
-		theta2[RightUpperLeg] = 0;
-		theta2[RightLowerLeg] = 0;
-		theta2[LeftUpperLeg] = 0;
-		theta2[LeftLowerLeg] = 0;
+		reset();
 		break;
 
 	default:
@@ -1453,10 +1596,10 @@ int main(int argc, char **argv)
 	glutInitWindowSize(1200, 800);
 	glutInitContextVersion(3, 2);
 	glutInitContextProfile(GLUT_CORE_PROFILE);
-	int window = glutCreateWindow("2017152032_杨志发_期末大作业");
+	int window = glutCreateWindow("2017152032_杨志发_期末大作业  头发都没了");
 	glewExperimental = GL_TRUE;
 	glewInit();
-
+	cout << "游戏开始！" << endl;
 	mp_ =skybox(pictrue1);
 
 	init();
