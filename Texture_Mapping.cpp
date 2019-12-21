@@ -209,12 +209,12 @@ GLuint       draw_color;
 // 控制机器人行走的参数
 int runGesture = 1;	// 控制切换行走姿势
 int runGesture2 = 1;	// 控制切换行走姿势
-float runX = 0, runY = 0, runZ = 0;	// 控制机器人1移动的坐标
-float runX2 = 10, runY2 = 0, runZ2 = 10;	// 控制机器人2移动的坐标
+float runX = 10, runY = 0, runZ = -6;	// 控制机器人1移动的坐标
+float runX2 = 10, runY2 = 0, runZ2 = 6;	// 控制机器人2移动的坐标
 int cameramouse = 0;	// 控制切换第一视角行走模式
 int movetorso = 0;	// 控制切换第一视角行走模式
 int stepSize = 1;	// 控制机器人1每一步的步长
-int stepSize2 = 1;	// 控制机器人2每一步的步长
+int stepSize2 = 4;	// 控制机器人2每一步的步长
 float increase = 1.0;	// 绘制机器人时的位置偏移值
 
 
@@ -268,26 +268,26 @@ float CUBE_WIDTH = 8;
 
 // 定义机器人2各个部位的大小
 
-float HEAD_HEIGHT2 = 2.5*0.6;
-float HEAD_WIDTH2 = 2.5*0.6;
+float HEAD_HEIGHT2 = 2.5*0.5;
+float HEAD_WIDTH2 = 2.5*0.5;
 
-float TORSO_HEIGHT2 = 5.5*0.6;
-float TORSO_WIDTH2 = 4.0*0.6;
+float TORSO_HEIGHT2 = 5.5*0.5;
+float TORSO_WIDTH2 = 4.0*0.5;
 
-float UPPER_ARM_HEIGHT2 = 2.0*0.6;
-float UPPER_ARM_WIDTH2 = 1 * 0.6;
+float UPPER_ARM_HEIGHT2 = 2.0*0.5;
+float UPPER_ARM_WIDTH2 = 1 * 0.5;
 
-float LOWER_ARM_HEIGHT2 = 1.5*0.6;
-float LOWER_ARM_WIDTH2 = 1 * 0.6;
+float LOWER_ARM_HEIGHT2 = 1.5*0.5;
+float LOWER_ARM_WIDTH2 = 1 * 0.5;
 
-float UPPER_LEG_WIDTH2 = 1.5*0.6;
-float UPPER_LEG_HEIGHT2 = 1 * 0.6;
+float UPPER_LEG_WIDTH2 = 1.5*0.5;
+float UPPER_LEG_HEIGHT2 = 1 * 0.5;
 
-float LOWER_LEG_HEIGHT2 = 2 * 0.6;
-float LOWER_LEG_WIDTH2 = 1.5*0.6;
+float LOWER_LEG_HEIGHT2 = 2 * 0.5;
+float LOWER_LEG_WIDTH2 = 1.5*0.5;
 
-float CUBE_HEIGHT2 = 8 * 0.6;
-float CUBE_WIDTH2 = 8 * 0.6;
+float CUBE_HEIGHT2 = 8 * 0.5;
+float CUBE_WIDTH2 = 8 * 0.5;
 
 
 // 建立机器人部件项索引，以便使用关节角度
@@ -1046,7 +1046,7 @@ void energymaneger2() {
 
 	if (energy2 >= 500)
 	{
-		stepSize2 += 1;
+		stepSize2 += 2;
 		energy2 = 0;
 	}
 		
@@ -1152,7 +1152,7 @@ void judugeCross() {
 	}
 	else if (runZ < -77)
 	{
-		mp_ = skybox(pictrue4);
+		mp_ = skybox(pictrue3);
 		runZ = 77;
 		cout << "机器人穿越啦 " << endl;
 	}
@@ -1179,7 +1179,7 @@ void judugeCross() {
 	}
 	else if (runZ2 < -77)
 	{
-		mp_ = skybox(pictrue4);
+		mp_ = skybox(pictrue3);
 		runZ2 = 77;
 		cout << "机器人穿越啦 " << endl;
 	}
@@ -1371,10 +1371,16 @@ void keyboard(unsigned char key, int mousex, int mousey)
 		aspect = 1.0;
 		zN = 0.1;
 		zF = 100.0;
-		theta[Torso] = 0.0;
-		runX = 0;
-		runZ = 0;
 		lightPos = vec3(5, 5, 10);
+		rad = 50.0;
+		tAngle = 25.0;
+		pAngle = 0.0;
+
+		runX = 10;
+		runZ = -6;
+		runX2 = 10;
+		runZ2 = 6;
+	
 
 		// 机器人姿势
 		theta[Torso] = 0;
@@ -1387,6 +1393,17 @@ void keyboard(unsigned char key, int mousex, int mousey)
 		theta[RightLowerLeg] = 0;
 		theta[LeftUpperLeg] = 0;
 		theta[LeftLowerLeg] = 0;
+
+		theta2[Torso] = 0;
+		theta2[Head] = 0;
+		theta2[LeftUpperArm] = 0;
+		theta2[LeftLowerArm] = 0;
+		theta2[RightUpperArm] = 0;
+		theta2[RightLowerArm] = 0;
+		theta2[RightUpperLeg] = 0;
+		theta2[RightLowerLeg] = 0;
+		theta2[LeftUpperLeg] = 0;
+		theta2[LeftLowerLeg] = 0;
 		break;
 
 	default:
