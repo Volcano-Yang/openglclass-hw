@@ -217,6 +217,8 @@ int stepSize = 1;	// 控制机器人1每一步的步长
 int stepSize2 = 4;	// 控制机器人2每一步的步长
 float increase = 1.0;	// 绘制机器人时的位置偏移值
 
+float L = 1;
+
 
 // 给机器人1的各个部位设置颜色
 point4 color_head = vertex_colors[6];
@@ -1040,6 +1042,27 @@ void changeRobotSize(float x) {
 	energy = 0;
 }
 
+void changeRobotSize2(float x) {
+	HEAD_HEIGHT2 = x;
+	HEAD_WIDTH2 = x;
+	
+	TORSO_HEIGHT2 = x;
+	TORSO_WIDTH2 = x;
+
+	UPPER_ARM_HEIGHT2 = x;
+	UPPER_ARM_WIDTH2 = x;
+
+	LOWER_ARM_HEIGHT2 = x;
+	LOWER_ARM_WIDTH2 = x;
+
+	UPPER_LEG_WIDTH2 = x;
+	UPPER_LEG_HEIGHT2 = x;
+
+	LOWER_LEG_HEIGHT2 = x;
+	LOWER_LEG_WIDTH2 = x;
+
+}
+
 //奔跑增加能量
 void energymaneger2() {
 	energy2 += 5;
@@ -1058,7 +1081,11 @@ void energymaneger() {
 	energy += 5;
 
 	if (energy >= 500)
+	{
 		changeRobotSize(1.5);
+		L *= 1.5;
+	}
+		
 
 	cout << "当前能量：" << energy << endl;
 
@@ -1188,6 +1215,11 @@ void judugeCross() {
 		mp_ = skybox(pictrue4);
 		runZ2 = -77;
 		cout << "机器人穿越啦 " << endl;
+	}
+
+	if ((runX-L)<=runX2<=(runX+L)&&(runZ - L) <= runZ2 <= (runZ + L))
+	{
+		changeRobotSize2(0.5);
 	}
 }
 
