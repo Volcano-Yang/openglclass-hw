@@ -72,11 +72,6 @@ GLuint lightPosID;
 
 GLuint sflag;	// 用于传入片元着色器，以控制阴影部分不添加漫反射、镜面反射和环境光 
 
-//控制能量
-int energy = 0;
-
-int energy2 = 0;
-
 //天空盒贴图
 string pictrue1[6] = { "skybox/rainforest_bk.tga", "skybox/rainforest_lf.tga","skybox/rainforest_ft.tga", "skybox/rainforest_rt.tga","skybox/rainforest_dn.tga","skybox/rainforest_up.tga" };
 
@@ -207,20 +202,32 @@ GLuint       draw_color;
 //----------------------------------------------------------------------------
 
 
+
+//各种机器人的参数
 // 控制机器人行走的参数
 int runGesture = 1;	// 控制切换行走姿势
 int runGesture2 = 1;	// 控制切换行走姿势
 float runX = 10, runY = 0, runZ = -6;	// 控制机器人1移动的坐标
 float runX2 = 10, runY2 = 0, runZ2 = 6;	// 控制机器人2移动的坐标
-int cameramouse = 0;	// 控制切换第一视角行走模式
-int movetorso = 0;	// 控制切换第一视角行走模式
 int stepSize = 1;	// 控制机器人1每一步的步长
 int stepSize2 = 4;	// 控制机器人2每一步的步长
-float increase = 1.0;	// 绘制机器人时的位置偏移值
+int life = 1;
+int power = 1;
+int life2 = 1;
+int power2 = 1;
 
-float L = 0.2;
+float L = 0.4;
 int endtime = 2;
 int start_time = 0;
+
+int cameramouse = 0;	// 控制切换第一视角行走模式
+int movetorso = 0;	// 控制切换第一视角行走模式
+float increase = 1.0;	// 绘制机器人时的位置偏移值
+float increase2 = 1.0;	// 绘制机器人时的位置偏移值
+						//控制能量
+int energy = 0;
+
+int energy2 = 0;
 
 
 // 给机器人1的各个部位设置颜色
@@ -260,12 +267,12 @@ float UPPER_ARM_HEIGHT = 2.0;
 float UPPER_ARM_WIDTH = 1;
 
 float LOWER_ARM_HEIGHT = 1.5;
-float LOWER_ARM_WIDTH = 1;
+float LOWER_ARM_WIDTH = 1 ;
 
 float UPPER_LEG_WIDTH  =1.5;
 float UPPER_LEG_HEIGHT =1;
 
-float LOWER_LEG_HEIGHT = 2;
+float LOWER_LEG_HEIGHT = 2 ;
 float LOWER_LEG_WIDTH  = 1.5;
 
 float CUBE_HEIGHT = 8;
@@ -603,12 +610,12 @@ void bamboo(float x, float y, float z)
 }
 
 
-void show_robot(float x,float y,float z)
+void show_robot(float x,float y,float z,float in)
 {
 	glUseProgram(program);
 	glBindVertexArray(vao[0]);
 	model_view = Translate(x * sin(DegreesToRadians) + z, 0, x* cos(DegreesToRadians))
-		* Translate(0.0, increase + UPPER_LEG_HEIGHT + LOWER_LEG_HEIGHT, 0.0)*RotateY(theta[Torso]);//躯干变换矩阵pAngle*pAngle*
+		* Translate(0.0, in + UPPER_LEG_HEIGHT + LOWER_LEG_HEIGHT, 0.0)*RotateY(theta[Torso]);//躯干变换矩阵pAngle*pAngle*
 	torso(TORSO_WIDTH,TORSO_HEIGHT, color_torso);//躯干绘制
 
 
@@ -649,12 +656,12 @@ void show_robot(float x,float y,float z)
 }
 
 
-void show_robot2(float x, float y, float z)
+void show_robot2(float x, float y, float z, float in)
 {
 	glUseProgram(program);
 	glBindVertexArray(vao[0]);
 	model_view = Translate(x * sin(DegreesToRadians) + z, 0, x* cos(DegreesToRadians))
-		* Translate(0.0, increase + UPPER_LEG_HEIGHT2 + LOWER_LEG_HEIGHT2, 0.0)*RotateY(theta2[Torso]);//躯干变换矩阵pAngle*pAngle*
+		* Translate(0.0, in + UPPER_LEG_HEIGHT2 + LOWER_LEG_HEIGHT2, 0.0)*RotateY(theta2[Torso]);//躯干变换矩阵pAngle*pAngle*
 	torso(TORSO_WIDTH2, TORSO_HEIGHT2, color_torso2);//躯干绘制
 
 
@@ -807,8 +814,8 @@ display(void)
 	glUseProgram(program);
 
 	//bamboo(20,0,-10);
-	show_robot(runX, runY, runZ);	// 绘制机器人
-	show_robot2(runX2, runY2, runZ2);	// 绘制机器人
+	show_robot(runX, runY, runZ,increase);	// 绘制机器人
+	show_robot2(runX2, runY2, runZ2, increase2);	// 绘制机器人
 	glutSwapBuffers();
 };
 
@@ -1023,6 +1030,7 @@ void robotChangeGesture2() {
 	}
 }
 
+//改变机器人大小
 void changeRobotSize(float x) {
 	HEAD_HEIGHT *= x;
 	HEAD_WIDTH *= x;
@@ -1051,8 +1059,8 @@ void changeRobotSize2(float x) {
 		HEAD_HEIGHT2 = 1;
 		HEAD_WIDTH2 = 1;
 
-		TORSO_HEIGHT2 = 2.5;
-		TORSO_WIDTH2 = 2.6;
+		TORSO_HEIGHT2 = 2;
+		TORSO_WIDTH2 = 3;
 
 		UPPER_ARM_HEIGHT2 = 0.5;
 		UPPER_ARM_WIDTH2 = 0.5;
@@ -1065,13 +1073,14 @@ void changeRobotSize2(float x) {
 
 		LOWER_LEG_HEIGHT2 = 0.5;
 		LOWER_LEG_WIDTH2 = 0.5;
-		//Sleep(2000);
-		float runX = 10, runY = 0, runZ = -6;	// 控制机器人1移动的坐标
-		float runX2 = 10, runY2 = 0, runZ2 = 6;	// 控制机器人2移动的坐标
+		Sleep(400);
+		runX = 10; runY = 0; runZ = -10;	// 控制机器人1移动的坐标
+	    runX2 = 10; runY2 = 0; runZ2 = 10;	// 控制机器人2移动的坐标
 		stepSize2 += 3;
+		L = 0.4;
 	}
 	
-	if (0)
+	if (x==0)
 	{
 		HEAD_HEIGHT2 = 0;
 		HEAD_WIDTH2 = 0;
@@ -1096,6 +1105,7 @@ void changeRobotSize2(float x) {
 
 void reset()
 {
+	Sleep(800);
 	cout << "游戏重新开始！" << endl;
 	// camera
 	pAngle = 0.0;
@@ -1186,7 +1196,7 @@ void reset()
 	stepSize2 = 4;
 	endtime = 2;
 	start_time = 0;
-	L = 1;
+	L = 0.5;
 
 
 }
@@ -1392,6 +1402,7 @@ void judugeCross() {
 		if (endtime==2)
 		{
 			changeRobotSize2(1);
+			
 			endtime = 1;
 		}
 		else if (endtime == 1)
@@ -1407,8 +1418,7 @@ void judugeCross() {
 }
 
 
-
-
+//键盘响应事件
 //----------------------------------------------------------------------------
 //控制相机位置和机器人位置的的函数
 void keyboard(unsigned char key, int mousex, int mousey)
@@ -1453,6 +1463,7 @@ void keyboard(unsigned char key, int mousex, int mousey)
 		//cout << "当前相机的参数： eye:" << eye << " fov:" << fov << endl;
 		break;
 
+
 		// 控制机器人2移动
 	case 'j':
 		robotChangeGesture2();	// 切换姿势
@@ -1460,35 +1471,58 @@ void keyboard(unsigned char key, int mousex, int mousey)
 		theta2[Torso] = 180.0 + 90.0;// 机器人身体转向前进的方向
 		energymaneger2();
 		judugeCross();
+		increase2 = 1;
 		//cout << "机器人当前位置：（" << runX2 << " , " << runY2 << " , " << runZ2 << " )" << endl;
 		break;
 
 	case 'l':	// 右移
 		robotChangeGesture2();
-		runZ2 += stepSize;
+		runZ2 += stepSize2;
+		theta2[Torso] = 180.0 - 90.0;
+		energymaneger2();
+		judugeCross();
+		increase2 = 1;
+		//cout << "机器人当前位置：（" << runX2 << " , " << runY2 << " , " << runZ2 << " )" << endl;
+		break;
+
+	case 'i':	// 前进
+		robotChangeGesture2();
+		runX2 -= stepSize2;
+		theta2[Torso] = 180.0;
+		energymaneger2();
+		judugeCross();
+		increase2 = 1;
+		//cout << "机器人当前位置：（" << runX2 << " , " << runY2 << " , " << runZ2 << " )" << endl;
+		break;
+
+	case 'k':	// 后退
+		robotChangeGesture2();
+		runX2 += stepSize2;
+		theta2[Torso] = 0;
+		energymaneger2();
+		judugeCross();
+		increase2 = 1;
+		//cout << "机器人当前位置：（" << runX2 << " , " << runY2 << " , " << runZ2 << " )" << endl;
+		break;
+	case 'u':	// 跳起
+		robotChangeGesture2();
+		increase2 = 10;
+		runZ2 -= 2;
+		theta2[Torso] = 180.0 + 90.0;
+		energymaneger2();
+		judugeCross();
+		//cout << "机器人当前位置：（" << runX2 << " , " << runY2 << " , " << runZ2 << " )" << endl;
+		break;
+	case 'o':	// 跳起
+		robotChangeGesture2();
+		increase2 = 10;
+		runZ2 += 2;
 		theta2[Torso] = 180.0 - 90.0;
 		energymaneger2();
 		judugeCross();
 		//cout << "机器人当前位置：（" << runX2 << " , " << runY2 << " , " << runZ2 << " )" << endl;
 		break;
 
-	case 'i':	// 前进
-		robotChangeGesture2();
-		runX2 -= stepSize;
-		theta2[Torso] = 180.0;
-		energymaneger2();
-		judugeCross();
-		//cout << "机器人当前位置：（" << runX2 << " , " << runY2 << " , " << runZ2 << " )" << endl;
-		break;
-
-	case 'k':	// 后退
-		robotChangeGesture2();
-		runX2 += stepSize;
-		theta2[Torso] = 0;
-		energymaneger2();
-		judugeCross();
-		//cout << "机器人当前位置：（" << runX2 << " , " << runY2 << " , " << runZ2 << " )" << endl;
-		break;
 
 
 		// 控制机器人移动
@@ -1498,6 +1532,7 @@ void keyboard(unsigned char key, int mousex, int mousey)
 		theta[Torso] = 180.0 + 90.0;// 机器人身体转向前进的方向
 		energymaneger();
 		judugeCross();
+		increase = 1;
 		//cout << "机器人当前位置：（"<<runX<<" , "<<runY<<" , "<<runZ <<" )"<< endl;
 		break;
 	case 'd':	// 右移
@@ -1506,6 +1541,7 @@ void keyboard(unsigned char key, int mousex, int mousey)
 		theta[Torso] = 180.0 - 90.0;
 		energymaneger();
 		judugeCross();
+		increase = 1;
 		//cout << "机器人当前位置：（" << runX << " , " << runY << " , " << runZ << " )" << endl;
 		break;
 	case 'w':	// 前进
@@ -1514,12 +1550,32 @@ void keyboard(unsigned char key, int mousex, int mousey)
 		theta[Torso] = 180.0;
 		energymaneger();
 		judugeCross();
+		increase = 1;
 		//cout << "机器人当前位置：（" << runX << " , " << runY << " , " << runZ << " )" << endl;
 		break;
 	case 's':	// 后退
 		robotChangeGesture();
 		runX += stepSize;
 		theta[Torso] = 0; 
+		energymaneger();
+		judugeCross();
+		increase = 1;
+		//cout << "机器人当前位置：（" << runX << " , " << runY << " , " << runZ << " )" << endl;
+		break;
+	case 'q':	// 跳起
+		robotChangeGesture();
+		increase = 10;
+		runZ -= 2;
+		theta[Torso] = 180.0 + 90.0;
+		energymaneger();
+		judugeCross();
+		//cout << "机器人当前位置：（" << runX << " , " << runY << " , " << runZ << " )" << endl;
+		break;
+	case 'e':	// 跳起
+		robotChangeGesture();
+		increase = 10;
+		runZ += 2;
+		theta[Torso] = 180.0 - 90.0;
 		energymaneger();
 		judugeCross();
 		//cout << "机器人当前位置：（" << runX << " , " << runY << " , " << runZ << " )" << endl;
@@ -1541,7 +1597,7 @@ void keyboard(unsigned char key, int mousex, int mousey)
 
 	//改变机器人的大小
 	case '=':	
-		changeRobotSize(1.5);
+		changeRobotSize(1.25);
 		//cout << "机器人变大了" << endl;
 		break;
 
