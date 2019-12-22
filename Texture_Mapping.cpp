@@ -214,9 +214,11 @@ int stepSize2 = 4;	// 控制机器人2每一步的步长
 int life = 1;
 int power = 1;
 int life2 = 1;
-int power2 = 1;
+int power2 = 0;
 
-float L = 0.4;
+float L = 0.1;
+float L2 = 0.1;
+float Lb = 0.5;
 int endtime = 2;
 int start_time = 0;
 
@@ -224,10 +226,12 @@ int cameramouse = 0;	// 控制切换第一视角行走模式
 int movetorso = 0;	// 控制切换第一视角行走模式
 float increase = 1.0;	// 绘制机器人时的位置偏移值
 float increase2 = 1.0;	// 绘制机器人时的位置偏移值
-						//控制能量
-int energy = 0;
 
-int energy2 = 0;
+						
+//						//控制能量
+//int energy = 0;
+//
+//int energy2 = 0;
 
 
 // 给机器人1的各个部位设置颜色
@@ -240,7 +244,7 @@ point4 color_lower_arm = vertex_colors[0];
 point4 color_upper_leg = vertex_colors[6];
 point4 color_lower_leg = vertex_colors[0];
 
-point4 color_cube = vertex_colors[2];
+
 
 // 给机器人2的各个部位设置颜色
 point4 color_head2 = vertex_colors[6];
@@ -252,7 +256,7 @@ point4 color_lower_arm2 = vertex_colors[4];
 point4 color_upper_leg2 = vertex_colors[6];
 point4 color_lower_leg2 = vertex_colors[4];
 
-point4 color_cube2 = vertex_colors[2];
+
 
 
 // 定义机器人1各个部位的大小
@@ -275,8 +279,7 @@ float UPPER_LEG_HEIGHT =1;
 float LOWER_LEG_HEIGHT = 2 ;
 float LOWER_LEG_WIDTH  = 1.5;
 
-float CUBE_HEIGHT = 8;
-float CUBE_WIDTH = 8;
+
 
 // 定义机器人2各个部位的大小
 
@@ -298,9 +301,23 @@ float UPPER_LEG_HEIGHT2 = 1 * 0.5;
 float LOWER_LEG_HEIGHT2 = 2 * 0.5;
 float LOWER_LEG_WIDTH2 = 1.5*0.5;
 
-float CUBE_HEIGHT2 = 8 * 0.5;
-float CUBE_WIDTH2 = 8 * 0.5;
 
+
+//能量方块的大小
+float CUBE_HEIGHT = 4.0;
+float CUBE_WIDTH = 4.0;
+float CUBE_HEIGHT2 = 4.0;
+float CUBE_WIDTH2 = 4.0;
+float CUBE_HEIGHT3 = 4.0;
+float CUBE_WIDTH3 = 4.0;
+point4 color_cube = vertex_colors[0];
+point4 color_cube2 = vertex_colors[0];
+point4 color_cube3 = vertex_colors[0];
+
+float increase3 = -1.0;	float increase4 = 15;// 绘制机器人时的位置偏移值
+float b1x=-28.0, b1y=0.0, b1z=45.0;
+float b2x = -28.0, b2y = 0.0, b2z = -45.0;
+float b3x = -18.0, b3y = 0.0, b3z = 0.0;
 
 // 建立机器人部件项索引，以便使用关节角度
 enum {
@@ -403,20 +420,7 @@ void init_shadowMatrix()
 	glUniformMatrix4fv(ModelViewMatrixID, 1, GL_TRUE, &ModelViewMatrix[0][0]);
 }
 
-void
-cube()
-{
-	init_shadowMatrix();
-	mvstack.push(model_view);// 保存父节点矩阵
-	mat4 instance = (Translate(0.0, 0.5 * CUBE_HEIGHT, 0.0) *
-		Scale(CUBE_WIDTH, CUBE_HEIGHT, CUBE_WIDTH/2));// 本节点局部变换矩阵
-	glUniformMatrix4fv(ModelView, 1, GL_TRUE, model_view * instance);// 父节点矩阵*本节点局部变换矩阵
-	glUniform4fv(draw_color, 1, color_cube);
-	glUniform1i(sflag, 0);
-	glDrawArrays(GL_TRIANGLES, 0, NumVertices);
-	add_robot_shadow();
-	model_view = mvstack.pop();// 恢复父节点矩阵
-}
+
 
 void
 torso(float w,float h, point4 color)
@@ -601,12 +605,27 @@ right_lower_leg(float w, float h, point4 color)
 	model_view = mvstack.pop();//恢复父节点矩阵
 }
 
-void bamboo(float x, float y, float z)
+void
+cube(point4 color, float w, float h)
+{
+	init_shadowMatrix();
+	mvstack.push(model_view);// 保存父节点矩阵
+	mat4 instance = (Translate(0.0, h, 0.0) *
+		Scale(w,h, w));// 本节点局部变换矩阵
+	glUniformMatrix4fv(ModelView, 1, GL_TRUE, model_view * instance);// 父节点矩阵*本节点局部变换矩阵
+	glUniform4fv(draw_color, 1, color);
+	glUniform1i(sflag, 0);
+	glDrawArrays(GL_TRIANGLES, 0, NumVertices);
+	add_robot_shadow();
+	model_view = mvstack.pop();// 恢复父节点矩阵
+}
+
+void bamboo(float x, float y, float z, point4 color,float in,float w,float h)
 {
 	glUseProgram(program);
 	glBindVertexArray(vao[0]);
-	model_view = Translate(x,y,z);
-	cube();//躯干绘制
+	model_view = Translate(x * sin(DegreesToRadians) + z, 0, x* cos(DegreesToRadians))* Translate(0.0, in, 0.0);
+	cube(color,w,h);//躯干绘制
 }
 
 
@@ -816,6 +835,11 @@ display(void)
 	//bamboo(20,0,-10);
 	show_robot(runX, runY, runZ,increase);	// 绘制机器人
 	show_robot2(runX2, runY2, runZ2, increase2);	// 绘制机器人
+
+	bamboo(b1x, b1y, b1z, color_cube3,increase3, CUBE_WIDTH,CUBE_HEIGHT);
+	bamboo(b2x, b2y, b2z, color_cube2,increase3, CUBE_WIDTH2, CUBE_HEIGHT2);
+	bamboo(b3x, b3y, b3z, color_cube,increase4, CUBE_WIDTH3, CUBE_HEIGHT3);
+
 	glutSwapBuffers();
 };
 
@@ -1050,183 +1074,178 @@ void changeRobotSize(float x) {
 	LOWER_LEG_HEIGHT *= x;
 	LOWER_LEG_WIDTH *= x;
 
-	energy = 0;
+	L *= x;
 }
 
 void changeRobotSize2(float x) {
+	HEAD_HEIGHT2 *= x;
+	HEAD_WIDTH2 *= x;
+
+	TORSO_HEIGHT2 *= x;
+	TORSO_WIDTH2 *= x;
+
+	UPPER_ARM_HEIGHT2 *= x;
+	UPPER_ARM_WIDTH2 *= x;
+
+	LOWER_ARM_HEIGHT2 *= x;
+	LOWER_ARM_WIDTH2 *= x;
+
+	UPPER_LEG_WIDTH2 *= x;
+	UPPER_LEG_HEIGHT2 *= x;
+
+	LOWER_LEG_HEIGHT2 *= x;
+	LOWER_LEG_WIDTH2 *= x;
+}
+
+void changebamboo(float x) {
 	if (x==1)
 	{
-		HEAD_HEIGHT2 = 1;
-		HEAD_WIDTH2 = 1;
-
-		TORSO_HEIGHT2 = 2;
-		TORSO_WIDTH2 = 3;
-
-		UPPER_ARM_HEIGHT2 = 0.5;
-		UPPER_ARM_WIDTH2 = 0.5;
-
-		LOWER_ARM_HEIGHT2 = 0.5;
-		LOWER_ARM_WIDTH2 = 0.5;
-
-		UPPER_LEG_WIDTH2 = 0.5;
-		UPPER_LEG_HEIGHT2 = 0.5;
-
-		LOWER_LEG_HEIGHT2 = 0.5;
-		LOWER_LEG_WIDTH2 = 0.5;
-		Sleep(400);
-		runX = 10; runY = 0; runZ = -10;	// 控制机器人1移动的坐标
-	    runX2 = 10; runY2 = 0; runZ2 = 10;	// 控制机器人2移动的坐标
-		stepSize2 += 3;
-		L = 0.4;
+		CUBE_HEIGHT = 0;
+		CUBE_WIDTH = 0;
 	}
-	
-	if (x==0)
+	if (x == 2)
 	{
-		HEAD_HEIGHT2 = 0;
-		HEAD_WIDTH2 = 0;
-
-		TORSO_HEIGHT2 = 0;
-		TORSO_WIDTH2 = 0;
-
-		UPPER_ARM_HEIGHT2 = 0;
-		UPPER_ARM_WIDTH2 = 0;
-
-		LOWER_ARM_HEIGHT2 = 0;
-		LOWER_ARM_WIDTH2 = 0;
-
-		UPPER_LEG_WIDTH2 =0;
-		UPPER_LEG_HEIGHT2 = 0;
-
-		LOWER_LEG_HEIGHT2 = 0;
-		LOWER_LEG_WIDTH2 = 0;
+		CUBE_HEIGHT2 = 0;
+		CUBE_WIDTH2 = 0;
 	}
-
+	if (x == 3)
+	{
+		CUBE_HEIGHT3 = 0;
+		CUBE_WIDTH3 = 0;
+	}
 }
 
 void reset()
 {
-	Sleep(800);
-	cout << "游戏重新开始！" << endl;
-	// camera
-	pAngle = 0.0;
-
-	// perspective
-	fov = 100.0;
-	aspect = 1.0;
-	zN = 0.1;
-	zF = 100.0;
-	lightPos = vec3(5, 5, 10);
-	rad = 50.0;
-	tAngle = 25.0;
-	pAngle = 0.0;
-
-	runX = 10;
-	runZ = -6;
-	runX2 = 10;
-	runZ2 = 6;
+	cout << "游戏结束，输入666，重新开始游戏,输入444结束游戏" << endl;
+	int www;
+	cin >> www;
+	if (www==666)
+	{
+		cout << "游戏重新开始！" << endl;
 
 
-	// 机器人姿势
-	theta[Torso] = 0;
-	theta[Head] = 0;
-	theta[LeftUpperArm] = 0;
-	theta[LeftLowerArm] = 0;
-	theta[RightUpperArm] = 0;
-	theta[RightLowerArm] = 0;
-	theta[RightUpperLeg] = 0;
-	theta[RightLowerLeg] = 0;
-	theta[LeftUpperLeg] = 0;
-	theta[LeftLowerLeg] = 0;
+		// camera
+		pAngle = 0.0;
 
-	theta2[Torso] = 0;
-	theta2[Head] = 0;
-	theta2[LeftUpperArm] = 0;
-	theta2[LeftLowerArm] = 0;
-	theta2[RightUpperArm] = 0;
-	theta2[RightLowerArm] = 0;
-	theta2[RightUpperLeg] = 0;
-	theta2[RightLowerLeg] = 0;
-	theta2[LeftUpperLeg] = 0;
-	theta2[LeftLowerLeg] = 0;
+		// perspective
+		fov = 100.0;
+		aspect = 1.0;
+		zN = 0.1;
+		zF = 100.0;
+		lightPos = vec3(5, 5, 10);
+		rad = 50.0;
+		tAngle = 25.0;
+		pAngle = 0.0;
 
-	HEAD_HEIGHT = 2.5;
-	HEAD_WIDTH = 2.5;
+		runX = 10;
+		runZ = -6;
+		runX2 = 10;
+		runZ2 = 6;
 
-	TORSO_HEIGHT = 5.5;
-	TORSO_WIDTH = 4.0;
 
-	UPPER_ARM_HEIGHT = 2.0;
-	UPPER_ARM_WIDTH = 1;
+		// 机器人姿势
+		theta[Torso] = 0;
+		theta[Head] = 0;
+		theta[LeftUpperArm] = 0;
+		theta[LeftLowerArm] = 0;
+		theta[RightUpperArm] = 0;
+		theta[RightLowerArm] = 0;
+		theta[RightUpperLeg] = 0;
+		theta[RightLowerLeg] = 0;
+		theta[LeftUpperLeg] = 0;
+		theta[LeftLowerLeg] = 0;
 
-	LOWER_ARM_HEIGHT = 1.5;
-	LOWER_ARM_WIDTH = 1;
+		theta2[Torso] = 0;
+		theta2[Head] = 0;
+		theta2[LeftUpperArm] = 0;
+		theta2[LeftLowerArm] = 0;
+		theta2[RightUpperArm] = 0;
+		theta2[RightLowerArm] = 0;
+		theta2[RightUpperLeg] = 0;
+		theta2[RightLowerLeg] = 0;
+		theta2[LeftUpperLeg] = 0;
+		theta2[LeftLowerLeg] = 0;
 
-	UPPER_LEG_WIDTH = 1.5;
-	UPPER_LEG_HEIGHT = 1;
+		HEAD_HEIGHT = 2.5;
+		HEAD_WIDTH = 2.5;
 
-	LOWER_LEG_HEIGHT = 2;
-	LOWER_LEG_WIDTH = 1.5;
+		TORSO_HEIGHT = 5.5;
+		TORSO_WIDTH = 4.0;
 
-	CUBE_HEIGHT = 8;
-	CUBE_WIDTH = 8;
+		UPPER_ARM_HEIGHT = 2.0;
+		UPPER_ARM_WIDTH = 1;
 
-	// 定义机器人2各个部位的大小
+		LOWER_ARM_HEIGHT = 1.5;
+		LOWER_ARM_WIDTH = 1;
 
-	HEAD_HEIGHT2 = 2.5*0.5;
-	HEAD_WIDTH2 = 2.5*0.5;
+		UPPER_LEG_WIDTH = 1.5;
+		UPPER_LEG_HEIGHT = 1;
 
-	TORSO_HEIGHT2 = 5.5*0.5;
-	TORSO_WIDTH2 = 4.0*0.5;
+		LOWER_LEG_HEIGHT = 2;
+		LOWER_LEG_WIDTH = 1.5;
 
-	UPPER_ARM_HEIGHT2 = 2.0*0.5;
-	UPPER_ARM_WIDTH2 = 1 * 0.5;
 
-	LOWER_ARM_HEIGHT2 = 1.5*0.5;
-	LOWER_ARM_WIDTH2 = 1 * 0.5;
+		// 定义机器人2各个部位的大小
 
-	UPPER_LEG_WIDTH2 = 1.5*0.5;
-	UPPER_LEG_HEIGHT2 = 1 * 0.5;
+		HEAD_HEIGHT2 = 2.5*0.5;
+		HEAD_WIDTH2 = 2.5*0.5;
 
-	LOWER_LEG_HEIGHT2 = 2 * 0.5;
-	LOWER_LEG_WIDTH2 = 1.5*0.5;
+		TORSO_HEIGHT2 = 5.5*0.5;
+		TORSO_WIDTH2 = 4.0*0.5;
 
-	CUBE_HEIGHT2 = 8 * 0.5;
-	CUBE_WIDTH2 = 8 * 0.5;
+		UPPER_ARM_HEIGHT2 = 2.0*0.5;
+		UPPER_ARM_WIDTH2 = 1 * 0.5;
 
-	stepSize2 = 4;
-	endtime = 2;
-	start_time = 0;
-	L = 0.5;
+		LOWER_ARM_HEIGHT2 = 1.5*0.5;
+		LOWER_ARM_WIDTH2 = 1 * 0.5;
 
+		UPPER_LEG_WIDTH2 = 1.5*0.5;
+		UPPER_LEG_HEIGHT2 = 1 * 0.5;
+
+		LOWER_LEG_HEIGHT2 = 2 * 0.5;
+		LOWER_LEG_WIDTH2 = 1.5*0.5;
+
+		stepSize2 = 4;
+		endtime = 2;
+		start_time = 0;
+		L = 0.5;
+	}
+	
+	else if (www==4)
+	{
+		cout << "游戏结束" << endl;
+		Sleep(1000000);
+	}
+
+	else
+	{
+		cout << "输入有误，世界被你玩坏了" << endl;
+		Sleep(1000000);
+		
+	}
 
 }
 
 
 //奔跑增加能量
-void energymaneger2() {
-	energy2 += 5;
-
-	if (energy2 >= 500)
-	{
-		stepSize2 += 2;
-		energy2 = 0;
-	}
-		
-	//cout << "当前能量：" << energy2 << endl;
-
-}
+//void energymaneger2() {
+//	energy2 += 5;
+//
+//	if (energy2 >= 500)
+//	{
+//		stepSize2 += 2;
+//		energy2 = 0;
+//	}
+//		
+//	//cout << "当前能量：" << energy2 << endl;
+//
+//}
 
 void energymaneger() {
-	energy += 5;
 	start_time += 2;
 
-	if (energy >= 500)
-	{
-		changeRobotSize(1.5);
-		L *= 1.5;
-	}
-
-	if (start_time>600)
+	if (start_time>500)
 	{
 		cout << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" << endl;
 		cout << "小布点赢了" << endl;
@@ -1234,39 +1253,10 @@ void energymaneger() {
 		reset();
 	}
 
-	if (start_time==100)
+	if ((start_time%100)==0)
 	{
-		cout << "剩余时间：500times" << endl;
+		cout << "剩余时间："<<(500-(start_time/100)*100)<<"times" << endl;
 	}
-
-	else if (start_time == 200)
-	{
-		cout << "剩余时间：400times" << endl;
-	}
-
-	else if (start_time == 300)
-	{
-		cout << "剩余时间：300times" << endl;
-	}
-
-	else if (start_time == 400)
-	{
-		cout << "剩余时间：200times" << endl;
-	}
-	else if (start_time == 500)
-	{
-		cout << "剩余时间：100times" << endl;
-	}
-	else if (start_time == 550)
-	{
-		cout << "剩余时间：50times" << endl;
-	}
-	else
-	{
-
-	}
-		
-	//cout << "当前能量：" << energy << endl;
 
 }
 
@@ -1344,7 +1334,56 @@ Mesh_Painter* skybox(string picture[])
 	return mp_;
 }
 
+void judgebamboo() {
+	if ((b1x - Lb) <= runX2 && runX2 <= (b1x + Lb) && (b1z - Lb) <= runZ2 && runZ2 <= (b1z + Lb))
+	{
+		cout << "hhhhh" << endl;
+		changebamboo(1);
+		power2 += 1;
+		changeRobotSize2(1.25);
+	}
+	else if ((b2x - Lb) <= runX2&& runX2 <= (b2x + Lb) && (b2z - Lb) <= runZ2&& runZ2 <= (b2z + Lb))
+	{
+		cout << "hhhhh" << endl;
+		changebamboo(2);
+		power2 += 1;
+		changeRobotSize2(1.25);
+	}
+	else if ((b3x - Lb) <= runX2&& runX2 <= (b3x + Lb) && (b3z - Lb) <= runZ2&& runZ2 <= (b3z + Lb))
+	{
+		cout << "hhhhh" << endl;
+		changebamboo(3);
+		power2 += 1;
+		changeRobotSize2(1.25);
+	}
+	else if ((b1x - Lb) <= runX && runX <= (b1x + Lb) && (b1z - Lb) <= runZ && runZ <= (b1z + Lb))
+	{
+		cout << "hhhhh" << endl;
+		changebamboo(1);
+		power += 1;
+		changeRobotSize(1.25);
+	}
+	else if ((b2x - Lb) <= runX && runX <= (b2x + Lb) && (b2z - Lb) <= runZ && runZ <= (b2z + Lb))
+	{
+		cout << "hhhhh" << endl;
+		changebamboo(2);
+		power += 1;
+		changeRobotSize(1.25);
+	}
+	else if ((b3x - Lb) <= runX && runX <= (b3x + Lb) && (b3z - Lb) <= runZ && runZ <= (b3z + Lb))
+	{
+		cout << "hhhhh" << endl;
+		changebamboo(3);
+		power += 1;
+		changeRobotSize(1.25);
+	}
+}
+
+
 void judugeCross() {
+
+	judgebamboo();
+
 	if (runX < -70)
 	{
 		mp_ = skybox(pictrue2);
@@ -1397,24 +1436,43 @@ void judugeCross() {
 		//cout << "机器人穿越啦 " << endl;
 	}
 
-	if ((runX-L)<=runX2<=(runX+L)&&(runZ - L) <= runZ2 <= (runZ + L))
+	if (power > power2 && increase == increase2)
 	{
-		if (endtime==2)
+		if ((runX - L) <= runX2 && runX2 <= (runX + L) && (runZ - L) <= runZ2  && runZ2 <= (runZ + L))
 		{
-			changeRobotSize2(1);
+			life2 -= 1;
+			if (life2==0)
+			{
+				cout << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" << endl;
+				cout << "巨无霸赢了" << endl;
+				cout << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" << endl;
+				changeRobotSize2(0.4);
+				changeRobotSize2(0);
+			}
 			
-			endtime = 1;
-		}
-		else if (endtime == 1)
-		{
-			cout << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" << endl;
-			cout << "巨无霸赢了" << endl;
-			cout << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" << endl;
-			changeRobotSize2(0);
-			//Sleep(2000);
-			reset();
 		}
 	}
+	else if (power < power2 && increase == increase2)
+	{
+		if ((runX2 - L2) <= runX && runX <= (runX + L) && (runZ2 - L2) <= runZ && runZ <= (runZ2 + L2))
+		{
+			life -= 1;
+			if (life == 0)
+			{
+				cout << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" << endl;
+				cout << "小布点赢了" << endl;
+				cout << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" << endl;
+				changeRobotSize(0.4);
+				changeRobotSize(0);
+			}
+
+		}
+	}
+	else
+	{
+
+	}
+
 }
 
 
@@ -1469,7 +1527,7 @@ void keyboard(unsigned char key, int mousex, int mousey)
 		robotChangeGesture2();	// 切换姿势
 		runZ2 -= stepSize2;	// 走出一步，步长为stepSize
 		theta2[Torso] = 180.0 + 90.0;// 机器人身体转向前进的方向
-		energymaneger2();
+		//energymaneger2();
 		judugeCross();
 		increase2 = 1;
 		//cout << "机器人当前位置：（" << runX2 << " , " << runY2 << " , " << runZ2 << " )" << endl;
@@ -1479,7 +1537,7 @@ void keyboard(unsigned char key, int mousex, int mousey)
 		robotChangeGesture2();
 		runZ2 += stepSize2;
 		theta2[Torso] = 180.0 - 90.0;
-		energymaneger2();
+		//energymaneger2();
 		judugeCross();
 		increase2 = 1;
 		//cout << "机器人当前位置：（" << runX2 << " , " << runY2 << " , " << runZ2 << " )" << endl;
@@ -1489,7 +1547,7 @@ void keyboard(unsigned char key, int mousex, int mousey)
 		robotChangeGesture2();
 		runX2 -= stepSize2;
 		theta2[Torso] = 180.0;
-		energymaneger2();
+		//energymaneger2();
 		judugeCross();
 		increase2 = 1;
 		//cout << "机器人当前位置：（" << runX2 << " , " << runY2 << " , " << runZ2 << " )" << endl;
@@ -1499,29 +1557,49 @@ void keyboard(unsigned char key, int mousex, int mousey)
 		robotChangeGesture2();
 		runX2 += stepSize2;
 		theta2[Torso] = 0;
-		energymaneger2();
+		//energymaneger2();
 		judugeCross();
 		increase2 = 1;
 		//cout << "机器人当前位置：（" << runX2 << " , " << runY2 << " , " << runZ2 << " )" << endl;
 		break;
 	case 'u':	// 跳起
 		robotChangeGesture2();
-		increase2 = 10;
-		runZ2 -= 2;
+		increase2 = 15;
+		runZ2 -= 1;
 		theta2[Torso] = 180.0 + 90.0;
-		energymaneger2();
+		//energymaneger2();
 		judugeCross();
 		//cout << "机器人当前位置：（" << runX2 << " , " << runY2 << " , " << runZ2 << " )" << endl;
 		break;
 	case 'o':	// 跳起
 		robotChangeGesture2();
-		increase2 = 10;
-		runZ2 += 2;
+		increase2 = 15;
+		runZ2 += 1;
 		theta2[Torso] = 180.0 - 90.0;
-		energymaneger2();
+		//energymaneger2();
 		judugeCross();
 		//cout << "机器人当前位置：（" << runX2 << " , " << runY2 << " , " << runZ2 << " )" << endl;
 		break;
+
+
+		// 控制机器人移动
+	case ',':// 左移
+		b1z -= stepSize;	// 走出一步，步长为stepSize
+		cout << "方块的位置：（" << b1x << " , " << b1y << " , " << b1x << " )" << endl;
+		break;
+	case '/':	// 右移
+		b1z += stepSize;
+		cout << "方块的位置：（" << b1x << " , " << b1y << " , " << b1z << " )" << endl;
+		break;
+	case ';':	// 前进
+		b1x -= stepSize;
+		cout << "方块的位置：（" << b1x << " , " << b1y << " , " << b1z << " )" << endl;
+		break;
+	case '.':	// 后退
+		b1x += stepSize;
+		cout << "方块的位置：（" << b1x << " , " << b1y << " , " << b1z << " )" << endl;
+		break;
+
 
 
 
@@ -1533,7 +1611,7 @@ void keyboard(unsigned char key, int mousex, int mousey)
 		energymaneger();
 		judugeCross();
 		increase = 1;
-		//cout << "机器人当前位置：（"<<runX<<" , "<<runY<<" , "<<runZ <<" )"<< endl;
+		cout << "机器人当前位置：（"<<runX<<" , "<<runY<<" , "<<runZ <<" )"<< endl;
 		break;
 	case 'd':	// 右移
 		robotChangeGesture();
@@ -1542,7 +1620,7 @@ void keyboard(unsigned char key, int mousex, int mousey)
 		energymaneger();
 		judugeCross();
 		increase = 1;
-		//cout << "机器人当前位置：（" << runX << " , " << runY << " , " << runZ << " )" << endl;
+		cout << "机器人当前位置：（" << runX << " , " << runY << " , " << runZ << " )" << endl;
 		break;
 	case 'w':	// 前进
 		robotChangeGesture();
@@ -1551,7 +1629,7 @@ void keyboard(unsigned char key, int mousex, int mousey)
 		energymaneger();
 		judugeCross();
 		increase = 1;
-		//cout << "机器人当前位置：（" << runX << " , " << runY << " , " << runZ << " )" << endl;
+		cout << "机器人当前位置：（" << runX << " , " << runY << " , " << runZ << " )" << endl;
 		break;
 	case 's':	// 后退
 		robotChangeGesture();
@@ -1560,12 +1638,12 @@ void keyboard(unsigned char key, int mousex, int mousey)
 		energymaneger();
 		judugeCross();
 		increase = 1;
-		//cout << "机器人当前位置：（" << runX << " , " << runY << " , " << runZ << " )" << endl;
+		cout << "机器人当前位置：（" << runX << " , " << runY << " , " << runZ << " )" << endl;
 		break;
 	case 'q':	// 跳起
 		robotChangeGesture();
 		increase = 10;
-		runZ -= 2;
+		runZ -= 1;
 		theta[Torso] = 180.0 + 90.0;
 		energymaneger();
 		judugeCross();
@@ -1574,7 +1652,7 @@ void keyboard(unsigned char key, int mousex, int mousey)
 	case 'e':	// 跳起
 		robotChangeGesture();
 		increase = 10;
-		runZ += 2;
+		runZ += 1;
 		theta[Torso] = 180.0 - 90.0;
 		energymaneger();
 		judugeCross();
