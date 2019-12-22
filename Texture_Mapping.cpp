@@ -210,15 +210,15 @@ int runGesture2 = 1;	// 控制切换行走姿势
 float runX = 10, runY = 0, runZ = -6;	// 控制机器人1移动的坐标
 float runX2 = 10, runY2 = 0, runZ2 = 6;	// 控制机器人2移动的坐标
 int stepSize = 1;	// 控制机器人1每一步的步长
-int stepSize2 = 4;	// 控制机器人2每一步的步长
+int stepSize2 = 3;	// 控制机器人2每一步的步长
 int life = 1;
 int power = 1;
 int life2 = 1;
 int power2 = 0;
 
-float L = 0.1;
-float L2 = 0.1;
-float Lb = 0.5;
+float L = 1;
+float L2 = 1;
+float Lb = 4;
 int endtime = 2;
 int start_time = 0;
 
@@ -1074,27 +1074,54 @@ void changeRobotSize(float x) {
 	LOWER_LEG_HEIGHT *= x;
 	LOWER_LEG_WIDTH *= x;
 
-	L *= x;
+	L += x;
+	cout << "大块头变强啦！ 当前大块头武力值为：" << power << "  小布点武力值为：" << power2 << endl;
 }
 
 void changeRobotSize2(float x) {
-	HEAD_HEIGHT2 *= x;
-	HEAD_WIDTH2 *= x;
+	if(HEAD_HEIGHT2<=1.25)
+	{
+		HEAD_HEIGHT2 = 2.5;
+		HEAD_WIDTH2 = 2.5;
 
-	TORSO_HEIGHT2 *= x;
-	TORSO_WIDTH2 *= x;
+		TORSO_HEIGHT2 = 5.5;
+		TORSO_WIDTH2 = 4.0;
 
-	UPPER_ARM_HEIGHT2 *= x;
-	UPPER_ARM_WIDTH2 *= x;
+		UPPER_ARM_HEIGHT2 = 2.0;
+		UPPER_ARM_WIDTH2 = 1;
 
-	LOWER_ARM_HEIGHT2 *= x;
-	LOWER_ARM_WIDTH2 *= x;
+		LOWER_ARM_HEIGHT2= 1.5;
+		LOWER_ARM_WIDTH2 = 1;
 
-	UPPER_LEG_WIDTH2 *= x;
-	UPPER_LEG_HEIGHT2 *= x;
+		UPPER_LEG_WIDTH2 = 1.5;
+		UPPER_LEG_HEIGHT2 = 1;
 
-	LOWER_LEG_HEIGHT2 *= x;
-	LOWER_LEG_WIDTH2 *= x;
+		LOWER_LEG_HEIGHT2 = 2;
+		LOWER_LEG_WIDTH2 = 1.5;
+		cout << "小布点变强啦！ 当前大块头武力值为：" << power << "  小布点武力值为：" << power2 << endl;
+	}
+	else
+	{
+		HEAD_HEIGHT2 *= x;
+		HEAD_WIDTH2 *= x;
+
+		TORSO_HEIGHT2 *= x;
+		TORSO_WIDTH2 *= x;
+
+		UPPER_ARM_HEIGHT2 *= x;
+		UPPER_ARM_WIDTH2 *= x;
+
+		LOWER_ARM_HEIGHT2 *= x;
+		LOWER_ARM_WIDTH2 *= x;
+
+		UPPER_LEG_WIDTH2 *= x;
+		UPPER_LEG_HEIGHT2 *= x;
+
+		LOWER_LEG_HEIGHT2 *= x;
+		LOWER_LEG_WIDTH2 *= x;
+		L2 += x;
+		cout << "小布点变强啦！ 当前大块头武力值为：" << power << "  小布点武力值为：" << power2 << endl;
+	}
 }
 
 void changebamboo(float x) {
@@ -1117,10 +1144,10 @@ void changebamboo(float x) {
 
 void reset()
 {
-	cout << "游戏结束，输入666，重新开始游戏,输入444结束游戏" << endl;
+	cout << "游戏结束，输入1，重新开始游戏,输入2结束游戏" << endl;
 	int www;
 	cin >> www;
-	if (www==666)
+	if (www==1)
 	{
 		cout << "游戏重新开始！" << endl;
 
@@ -1209,10 +1236,31 @@ void reset()
 		stepSize2 = 4;
 		endtime = 2;
 		start_time = 0;
-		L = 0.5;
+		L = 1;
+		L2 = 1;
+
+		endtime = 2;
+
+		stepSize = 1;	// 控制机器人1每一步的步长
+		stepSize2 = 3;	// 控制机器人2每一步的步长
+		life = 1;
+		power = 1;
+		life2 = 1;
+		power2 = 0;
+
+		runGesture = 1;	// 控制切换行走姿势
+		runGesture2 = 1;
+
+
+		CUBE_HEIGHT = 4.0;
+		CUBE_WIDTH = 4.0;
+		CUBE_HEIGHT2 = 4.0;
+		CUBE_WIDTH2 = 4.0;
+		CUBE_HEIGHT3 = 4.0;
+		CUBE_WIDTH3 = 4.0;
 	}
 	
-	else if (www==4)
+	else if (www==2)
 	{
 		cout << "游戏结束" << endl;
 		Sleep(1000000);
@@ -1335,44 +1383,38 @@ Mesh_Painter* skybox(string picture[])
 }
 
 void judgebamboo() {
-	if ((b1x - Lb) <= runX2 && runX2 <= (b1x + Lb) && (b1z - Lb) <= runZ2 && runZ2 <= (b1z + Lb))
+	if ((b1x - Lb) <= runX2 && runX2 <= (b1x + Lb) && (b1z - Lb) <= runZ2 && runZ2 <= (b1z + Lb) && CUBE_HEIGHT > 1)
 	{
-		cout << "hhhhh" << endl;
 		changebamboo(1);
 		power2 += 1;
 		changeRobotSize2(1.25);
 	}
-	else if ((b2x - Lb) <= runX2&& runX2 <= (b2x + Lb) && (b2z - Lb) <= runZ2&& runZ2 <= (b2z + Lb))
+	else if ((b2x - Lb) <= runX2&& runX2 <= (b2x + Lb) && (b2z - Lb) <= runZ2&& runZ2 <= (b2z + Lb) && CUBE_HEIGHT2>1)
 	{
-		cout << "hhhhh" << endl;
 		changebamboo(2);
 		power2 += 1;
-		changeRobotSize2(1.25);
+		changeRobotSize2(1.25); 
 	}
-	else if ((b3x - Lb) <= runX2&& runX2 <= (b3x + Lb) && (b3z - Lb) <= runZ2&& runZ2 <= (b3z + Lb))
+	else if ((b3x - Lb) <= runX2&& runX2 <= (b3x + Lb) && (b3z - Lb) <= runZ2&& runZ2 <= (b3z + Lb) && CUBE_HEIGHT3>1)
 	{
-		cout << "hhhhh" << endl;
 		changebamboo(3);
 		power2 += 1;
-		changeRobotSize2(1.25);
+		changeRobotSize2(1.25); 
 	}
-	else if ((b1x - Lb) <= runX && runX <= (b1x + Lb) && (b1z - Lb) <= runZ && runZ <= (b1z + Lb))
+	else if ((b1x - Lb) <= runX && runX <= (b1x + Lb) && (b1z - Lb) <= runZ && runZ <= (b1z + Lb) && CUBE_HEIGHT>1)
 	{
-		cout << "hhhhh" << endl;
 		changebamboo(1);
 		power += 1;
 		changeRobotSize(1.25);
 	}
-	else if ((b2x - Lb) <= runX && runX <= (b2x + Lb) && (b2z - Lb) <= runZ && runZ <= (b2z + Lb))
+	else if ((b2x - Lb) <= runX && runX <= (b2x + Lb) && (b2z - Lb) <= runZ && runZ <= (b2z + Lb) && CUBE_HEIGHT2>1)
 	{
-		cout << "hhhhh" << endl;
 		changebamboo(2);
 		power += 1;
 		changeRobotSize(1.25);
 	}
-	else if ((b3x - Lb) <= runX && runX <= (b3x + Lb) && (b3z - Lb) <= runZ && runZ <= (b3z + Lb))
+	else if ((b3x - Lb) <= runX && runX <= (b3x + Lb) && (b3z - Lb) <= runZ && runZ <= (b3z + Lb) && CUBE_HEIGHT3>1)
 	{
-		cout << "hhhhh" << endl;
 		changebamboo(3);
 		power += 1;
 		changeRobotSize(1.25);
@@ -1444,7 +1486,7 @@ void judugeCross() {
 			if (life2==0)
 			{
 				cout << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" << endl;
-				cout << "巨无霸赢了" << endl;
+				cout << "大块头赢了" << endl;
 				cout << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" << endl;
 				changeRobotSize2(0.4);
 				changeRobotSize2(0);
@@ -1582,23 +1624,23 @@ void keyboard(unsigned char key, int mousex, int mousey)
 		break;
 
 
-		// 控制机器人移动
-	case ',':// 左移
-		b1z -= stepSize;	// 走出一步，步长为stepSize
-		cout << "方块的位置：（" << b1x << " , " << b1y << " , " << b1x << " )" << endl;
-		break;
-	case '/':	// 右移
-		b1z += stepSize;
-		cout << "方块的位置：（" << b1x << " , " << b1y << " , " << b1z << " )" << endl;
-		break;
-	case ';':	// 前进
-		b1x -= stepSize;
-		cout << "方块的位置：（" << b1x << " , " << b1y << " , " << b1z << " )" << endl;
-		break;
-	case '.':	// 后退
-		b1x += stepSize;
-		cout << "方块的位置：（" << b1x << " , " << b1y << " , " << b1z << " )" << endl;
-		break;
+	//	// 控制机器人移动
+	//case ',':// 左移
+	//	b1z -= stepSize;	// 走出一步，步长为stepSize
+	//	//cout << "方块的位置：（" << b1x << " , " << b1y << " , " << b1x << " )" << endl;
+	//	break;
+	//case '/':	// 右移
+	//	b1z += stepSize;
+	//	//cout << "方块的位置：（" << b1x << " , " << b1y << " , " << b1z << " )" << endl;
+	//	break;
+	//case ';':	// 前进
+	//	b1x -= stepSize;
+	//	//cout << "方块的位置：（" << b1x << " , " << b1y << " , " << b1z << " )" << endl;
+	//	break;
+	//case '.':	// 后退
+	//	b1x += stepSize;
+	//	//cout << "方块的位置：（" << b1x << " , " << b1y << " , " << b1z << " )" << endl;
+	//	break;
 
 
 
@@ -1611,7 +1653,7 @@ void keyboard(unsigned char key, int mousex, int mousey)
 		energymaneger();
 		judugeCross();
 		increase = 1;
-		cout << "机器人当前位置：（"<<runX<<" , "<<runY<<" , "<<runZ <<" )"<< endl;
+		//cout << "机器人当前位置：（"<<runX<<" , "<<runY<<" , "<<runZ <<" )"<< endl;
 		break;
 	case 'd':	// 右移
 		robotChangeGesture();
@@ -1620,7 +1662,7 @@ void keyboard(unsigned char key, int mousex, int mousey)
 		energymaneger();
 		judugeCross();
 		increase = 1;
-		cout << "机器人当前位置：（" << runX << " , " << runY << " , " << runZ << " )" << endl;
+		//cout << "机器人当前位置：（" << runX << " , " << runY << " , " << runZ << " )" << endl;
 		break;
 	case 'w':	// 前进
 		robotChangeGesture();
@@ -1629,7 +1671,7 @@ void keyboard(unsigned char key, int mousex, int mousey)
 		energymaneger();
 		judugeCross();
 		increase = 1;
-		cout << "机器人当前位置：（" << runX << " , " << runY << " , " << runZ << " )" << endl;
+		//cout << "机器人当前位置：（" << runX << " , " << runY << " , " << runZ << " )" << endl;
 		break;
 	case 's':	// 后退
 		robotChangeGesture();
@@ -1638,7 +1680,7 @@ void keyboard(unsigned char key, int mousex, int mousey)
 		energymaneger();
 		judugeCross();
 		increase = 1;
-		cout << "机器人当前位置：（" << runX << " , " << runY << " , " << runZ << " )" << endl;
+		//cout << "机器人当前位置：（" << runX << " , " << runY << " , " << runZ << " )" << endl;
 		break;
 	case 'q':	// 跳起
 		robotChangeGesture();
@@ -1670,6 +1712,17 @@ void keyboard(unsigned char key, int mousex, int mousey)
 		robotChangeGesture(2);
 		robotChangeGesture2(2);
 		//cout << "机器人姿势改变" << endl;
+		break;
+
+		//改变机器人的大小
+	case '9':
+		changeRobotSize2(1.25);
+		//cout << "机器人变大了" << endl;
+		break;
+
+	case '0':
+		changeRobotSize2(0.8);
+		//cout << "机器人变小了" << endl;
 		break;
 
 
@@ -1730,10 +1783,17 @@ int main(int argc, char **argv)
 	glutInitWindowSize(1200, 800);
 	glutInitContextVersion(3, 2);
 	glutInitContextProfile(GLUT_CORE_PROFILE);
-	int window = glutCreateWindow("2017152032_杨志发_期末大作业  头发都没了");
+	int window = glutCreateWindow("2017152032_杨志发_期末大作业  小布点大战大块头");
 	glewExperimental = GL_TRUE;
 	glewInit();
+	cout << "欢迎来到我制作的OPENGL简单小游戏——小布点大战大块头" << endl;
+	cout << "游戏规则：一开始小布点打不过大块头的，但小布点跑的比较快。" << endl;
+	cout << "小布点想要赢：需要灵活避开大块头的追杀，保证一定500s内不被杀死，或通过吃森林中的能量方块提升自己的能力，直到比大块头强壮，反杀他" << endl;
+	cout << "大块头想要赢：需要在规定时间和在小布点力量没有超越自己前，将小布点踩扁" << endl;
+
 	cout << "游戏开始！" << endl;
+	cout << "当前大块头武力值为：" << power << "  小布点武力值为：" << power2 << endl;
+	cout << "当前大块头速度为：" <<stepSize << "  小布点速度为：" << stepSize2 << endl;
 	mp_ =skybox(pictrue1);
 
 	init();
