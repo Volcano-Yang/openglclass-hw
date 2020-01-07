@@ -31,7 +31,9 @@
     <ClInclude Include="Texture_Mapping.h" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="fshader82.glsl" />
     <None Include="f_texture.glsl" />
+    <None Include="vshader82.glsl" />
     <None Include="v_texture.glsl" />
   </ItemGroup>
   <PropertyGroup Label="Globals">

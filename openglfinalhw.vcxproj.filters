@@ -49,5 +49,11 @@
     <None Include="v_texture.glsl">
       <Filter>源文件</Filter>
     </None>
+    <None Include="fshader82.glsl">
+      <Filter>源文件</Filter>
+    </None>
+    <None Include="vshader82.glsl">
+      <Filter>源文件</Filter>
+    </None>
   </ItemGroup>
 </Project>

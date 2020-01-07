@@ -218,7 +218,7 @@ int power2 = 0;
 
 float L = 1;
 float L2 = 1;
-float Lb = 4;
+float Lb = 3;
 int endtime = 2;
 int start_time = 0;
 
@@ -447,9 +447,7 @@ void
 head(float w, float h, point4 color)
 {
 	init_shadowMatrix();
-
 	mvstack.push(model_view);// 保存父节点矩阵
-
 	mat4 instance = (Translate(0.0, 0.5 * h, 0.0) *
 		Scale(w, h, w));// 本节点局部变换矩阵
 	glUniformMatrix4fv(ModelView, 1, GL_TRUE, model_view * instance);// 父节点矩阵*本节点局部变换矩阵
@@ -1074,8 +1072,8 @@ void changeRobotSize(float x) {
 	LOWER_LEG_HEIGHT *= x;
 	LOWER_LEG_WIDTH *= x;
 
-	L += x;
-	cout << "大块头变强啦！ 当前大块头武力值为：" << power << "  小布点武力值为：" << power2 << endl;
+	L += 1;
+	cout << "大块头变强啦！ 当前大块头武力值为：" << power << "  小不点武力值为：" << power2 << endl;
 }
 
 void changeRobotSize2(float x) {
@@ -1098,7 +1096,7 @@ void changeRobotSize2(float x) {
 
 		LOWER_LEG_HEIGHT2 = 2;
 		LOWER_LEG_WIDTH2 = 1.5;
-		cout << "小布点变强啦！ 当前大块头武力值为：" << power << "  小布点武力值为：" << power2 << endl;
+		cout << "小不点变强啦！ 当前大块头武力值为：" << power << "  小不点武力值为：" << power2 << endl;
 	}
 	else
 	{
@@ -1119,8 +1117,8 @@ void changeRobotSize2(float x) {
 
 		LOWER_LEG_HEIGHT2 *= x;
 		LOWER_LEG_WIDTH2 *= x;
-		L2 += x;
-		cout << "小布点变强啦！ 当前大块头武力值为：" << power << "  小布点武力值为：" << power2 << endl;
+		L2 += 1;
+		cout << "小不点变强啦！ 当前大块头武力值为：" << power << "  小不点武力值为：" << power2 << endl;
 	}
 }
 
@@ -1263,14 +1261,13 @@ void reset()
 	else if (www==2)
 	{
 		cout << "游戏结束" << endl;
-		Sleep(1000000);
+		exit(EXIT_SUCCESS);
 	}
 
 	else
 	{
 		cout << "输入有误，世界被你玩坏了" << endl;
-		Sleep(1000000);
-		
+		exit(EXIT_SUCCESS);
 	}
 
 }
@@ -1296,7 +1293,7 @@ void energymaneger() {
 	if (start_time>500)
 	{
 		cout << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" << endl;
-		cout << "小布点赢了" << endl;
+		cout << "小不点赢了" << endl;
 		cout << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" << endl;
 		reset();
 	}
@@ -1395,7 +1392,7 @@ void judgebamboo() {
 		power2 += 1;
 		changeRobotSize2(1.25); 
 	}
-	else if ((b3x - Lb) <= runX2&& runX2 <= (b3x + Lb) && (b3z - Lb) <= runZ2&& runZ2 <= (b3z + Lb) && CUBE_HEIGHT3>1)
+	else if ((b3x - Lb) <= runX2&& runX2 <= (b3x + Lb) && (b3z - Lb) <= runZ2&& runZ2 <= (b3z + Lb) && CUBE_HEIGHT3>1&&increase4<=increase2)
 	{
 		changebamboo(3);
 		power2 += 1;
@@ -1413,7 +1410,7 @@ void judgebamboo() {
 		power += 1;
 		changeRobotSize(1.25);
 	}
-	else if ((b3x - Lb) <= runX && runX <= (b3x + Lb) && (b3z - Lb) <= runZ && runZ <= (b3z + Lb) && CUBE_HEIGHT3>1)
+	else if ((b3x - Lb) <= runX && runX <= (b3x + Lb) && (b3z - Lb) <= runZ && runZ <= (b3z + Lb) && CUBE_HEIGHT3>1 && increase4 <= increase)
 	{
 		changebamboo(3);
 		power += 1;
@@ -1473,7 +1470,7 @@ void judugeCross() {
 	}
 	else if (runZ2 > 77)
 	{
-		mp_ = skybox(pictrue4);
+		mp_ = skybox(pictrue3);
 		runZ2 = -77;
 		//cout << "机器人穿越啦 " << endl;
 	}
@@ -1496,13 +1493,13 @@ void judugeCross() {
 	}
 	else if (power < power2 && increase == increase2)
 	{
-		if ((runX2 - L2) <= runX && runX <= (runX + L) && (runZ2 - L2) <= runZ && runZ <= (runZ2 + L2))
+		if ((runX2 - L2) <= runX && runX <= (runX2 + L) && (runZ2 - L2) <= runZ && runZ <= (runZ2 + L2))
 		{
 			life -= 1;
 			if (life == 0)
 			{
 				cout << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" << endl;
-				cout << "小布点赢了" << endl;
+				cout << "小不点赢了" << endl;
 				cout << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" << endl;
 				changeRobotSize(0.4);
 				changeRobotSize(0);
@@ -1783,17 +1780,18 @@ int main(int argc, char **argv)
 	glutInitWindowSize(1200, 800);
 	glutInitContextVersion(3, 2);
 	glutInitContextProfile(GLUT_CORE_PROFILE);
-	int window = glutCreateWindow("2017152032_杨志发_期末大作业  小布点大战大块头");
+	int window = glutCreateWindow("2017152032_杨志发_期末大作业  小不点大战大块头");
 	glewExperimental = GL_TRUE;
 	glewInit();
-	cout << "欢迎来到我制作的OPENGL简单小游戏——小布点大战大块头" << endl;
-	cout << "游戏规则：一开始小布点打不过大块头的，但小布点跑的比较快。" << endl;
-	cout << "小布点想要赢：需要灵活避开大块头的追杀，保证一定500s内不被杀死，或通过吃森林中的能量方块提升自己的能力，直到比大块头强壮，反杀他" << endl;
-	cout << "大块头想要赢：需要在规定时间和在小布点力量没有超越自己前，将小布点踩扁" << endl;
+	cout << "欢迎来到我制作的OPENGL简单小游戏——小不点大战大块头" << endl;
+	cout << "游戏规则：" << endl;
+	cout << "一开始小不点打不过大块头的，但小不点跑的比较快。" << endl;
+	cout << "小不点想要赢：需要灵活避开大块头的追杀，保证一定500s内不被杀死，或通过吃能量方块，变得比大块头强壮，反杀他" << endl;
+	cout << "大块头想要赢：需要在规定时间和在小不点力量没有超越自己前，将小不点踩扁" << endl;
 
 	cout << "游戏开始！" << endl;
-	cout << "当前大块头武力值为：" << power << "  小布点武力值为：" << power2 << endl;
-	cout << "当前大块头速度为：" <<stepSize << "  小布点速度为：" << stepSize2 << endl;
+	cout << "当前大块头武力值为：" << power << "  小不点武力值为：" << power2 << endl;
+	cout << "当前大块头速度为：" <<stepSize << "  小不点速度为：" << stepSize2 << endl;
 	mp_ =skybox(pictrue1);
 
 	init();
